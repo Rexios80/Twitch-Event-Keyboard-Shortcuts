@@ -90,5 +90,5 @@ gradle-app.setting
 # Compiled binaries
 *.jar
 
-# Secret credentials
-Secret.kt
+# Log files
+*.log
