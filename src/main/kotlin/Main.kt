@@ -14,7 +14,6 @@ import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import okhttp3.OkHttpClient
 import tornadofx.*
-import java.awt.Robot
 
 
 class TornadoApp : App(MainView::class)
@@ -42,11 +41,19 @@ class MainView : View() {
         spacer {
             minHeight = 20.0
         }
-        textfield {
-            bind(controller.shortcutStringProperty)
-            isEditable = false
-            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
+        hbox {
+            textfield {
+                bind(controller.shortcutStringProperty)
+                isEditable = false
+                addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
+                addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
+            }
+            button("Add") {
+                action { controller.addFollowShortcut() }
+            }
+        }
+        tableview(controller.model.followShortcuts) {
+            column("Key Combination", Shortcut::createShortcutString)
         }
     }
 
@@ -68,7 +75,7 @@ class MainController : Controller() {
         .withClientSecret(Secret.clientSecret)
         .build()
 
-    private val model = Model.load()
+    val model = Model.load()
 
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
@@ -125,16 +132,20 @@ class MainController : Controller() {
                 savedModifierKeys.addAll(modifierKeysPressed)
             }
 
-            shortcutString = createShortcutString(modifierKeysPressed, nonModifierKeyPressed)
+            shortcutString = Shortcut.createShortcutString(modifierKeysPressed, nonModifierKeyPressed)
         } else if (event.eventType == KeyEvent.KEY_RELEASED) {
             if (event.code.isModifierKey) {
                 modifierKeysPressed.remove(event.code)
 
-                if(nonModifierKeyPressed == null) {
-                    shortcutString = createShortcutString(modifierKeysPressed, nonModifierKeyPressed)
+                if (nonModifierKeyPressed == null) {
+                    shortcutString = Shortcut.createShortcutString(modifierKeysPressed, nonModifierKeyPressed)
                 }
             }
         }
+    }
+
+    fun addFollowShortcut() {
+        model.followShortcuts.add(FollowShortcut(savedModifierKeys, nonModifierKeyPressed ?: return))
     }
 
     @EventSubscriber
