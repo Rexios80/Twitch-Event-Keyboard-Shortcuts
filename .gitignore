@@ -92,3 +92,6 @@ gradle-app.setting
 
 # Log files
 *.log
+
+# Super secret things
+Secret.kt

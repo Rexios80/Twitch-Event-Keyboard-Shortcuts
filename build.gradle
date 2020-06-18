@@ -15,6 +15,7 @@ dependencies {
     implementation "no.tornado:tornadofx:1.7.20"
     implementation "com.github.twitch4j:twitch4j:1.0.0-alpha.20"
     implementation "ch.qos.logback:logback-classic:1.2.3"
+    implementation "org.json:json:20200518"
 }
 
 compileKotlin {
