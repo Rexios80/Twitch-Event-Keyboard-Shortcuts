@@ -12,3 +12,25 @@ class CheerShortcut(modifiers: List<KeyCode>, key: KeyCode, val bits: Int) : Sho
 class SubscriptionShortcut(modifiers: List<KeyCode>, key: KeyCode, val months: Int) : Shortcut(modifiers, key)
 
 class GiftSubscriptionShortcut(modifiers: List<KeyCode>, key: KeyCode, val count: Int) : Shortcut(modifiers, key)
+
+fun createShortcutString(modifiers: List<KeyCode>, key: KeyCode?): String {
+    val keysPressed = mutableListOf<String>()
+    if (modifiers.contains(KeyCode.COMMAND)) {
+        keysPressed.add("Cmd")
+    }
+    if (modifiers.contains(KeyCode.WINDOWS)) {
+        keysPressed.add("Win")
+    }
+    if (modifiers.contains(KeyCode.CONTROL)) {
+        keysPressed.add("Ctrl")
+    }
+    if (modifiers.contains(KeyCode.ALT)) {
+        keysPressed.add("Alt")
+    }
+    if (modifiers.contains(KeyCode.SHIFT)) {
+        keysPressed.add("Shift")
+    }
+    keysPressed.add(key?.name ?: "")
+
+    return keysPressed.joinToString(" + ")
+}
