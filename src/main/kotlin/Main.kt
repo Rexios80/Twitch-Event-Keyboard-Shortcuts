@@ -43,17 +43,10 @@ class MainView : View() {
             minHeight = 20.0
         }
         textfield {
+            bind(controller.shortcutStringProperty)
             isEditable = false
             addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
             addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-            focusedProperty().addListener { _, _, focused ->
-                if (focused) {
-                    bind(controller.shortcutStringProperty)
-                } else {
-                    controller.shortcutStringProperty.unbind()
-                    controller.shortcutStringProperty.value = ""
-                }
-            }
         }
     }
 
