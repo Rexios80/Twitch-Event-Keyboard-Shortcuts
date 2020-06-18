@@ -15,14 +15,14 @@ class MainView : View() {
 }
 
 class MainController : Controller() {
-    private val accessToken = AccessToken(Secret.clientId, Secret.secret, OkHttpClient())
+    private val accessToken = AccessToken(Secret.clientId, Secret.clientSecret, OkHttpClient())
     private val credential: OAuth2Credential get() = OAuth2Credential(null, accessToken.accessToken)
     private val twitchClient = TwitchClientBuilder.builder()
         .withEnableHelix(true)
         .withEnablePubSub(true)
         .withDefaultAuthToken(credential)
         .withClientId(Secret.clientId)
-        .withClientSecret(Secret.secret)
+        .withClientSecret(Secret.clientSecret)
         .build()
 
     init {
