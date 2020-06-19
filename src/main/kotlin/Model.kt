@@ -1,23 +1,25 @@
+import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
-import javafx.collections.ObservableList
-import javafx.scene.input.KeyCode
 import tornadofx.asObservable
 import tornadofx.observableListOf
 import java.io.*
-import java.util.*
 
 
 class Model : Serializable {
     var channelName = ""
     var oauthToken = ""
-    var followShortcuts = observableListOf<FollowShortcut>()
-    var channelPointsShortcuts = observableListOf<ChannelPointsShortcut>()
-    var cheerShortcuts = observableListOf<CheerShortcut>()
-    var subscriptionShortcuts = observableListOf<SubscriptionShortcut>()
-    var giftSubscriptionShortcuts = observableListOf<GiftSubscriptionShortcut>()
+    var followShortcuts = FXCollections.observableArrayList<FollowShortcut>()
+    var channelPointsShortcuts = FXCollections.observableArrayList<ChannelPointsShortcut>()
+    var cheerShortcuts = FXCollections.observableArrayList<CheerShortcut>()
+    var subscriptionShortcuts = FXCollections.observableArrayList<SubscriptionShortcut>()
+    var giftSubscriptionShortcuts = FXCollections.observableArrayList<GiftSubscriptionShortcut>()
 
     init {
-        // Save the lists whenever they change (autosave)
+        setupAutoSave()
+    }
+
+    fun setupAutoSave() {
+        // Save the lists whenever they change
         followShortcuts.addListener(ListChangeListener { save() })
         channelPointsShortcuts.addListener(ListChangeListener { save() })
         cheerShortcuts.addListener(ListChangeListener { save() })
@@ -30,10 +32,12 @@ class Model : Serializable {
         fun load(): Model {
             try {
                 ObjectInputStream(FileInputStream(configFile)).use {
-                    val model = it.readObject()
-                    return model as Model
+                    val model = it.readObject() as Model
+                    // Deserialization calls init first so those listeners get overwritten
+                    model.setupAutoSave()
+                    return model
                 }
-            } catch(e: FileNotFoundException) {
+            } catch (e: FileNotFoundException) {
                 print("No config file found")
             }
 
@@ -55,17 +59,18 @@ class Model : Serializable {
         oos.writeObject(giftSubscriptionShortcuts.toList())
     }
 
+    @Suppress("UNCHECKED_CAST")
     private fun readObject(ois: ObjectInputStream) {
         channelName = ois.readUTF()
         oauthToken = ois.readUTF()
 
         try {
-            followShortcuts = (ois.readObject() as List<FollowShortcut>).asObservable()
-            channelPointsShortcuts = (ois.readObject() as List<ChannelPointsShortcut>).asObservable()
-            cheerShortcuts = (ois.readObject() as List<CheerShortcut>).asObservable()
-            subscriptionShortcuts = (ois.readObject() as List<SubscriptionShortcut>).asObservable()
-            giftSubscriptionShortcuts = (ois.readObject() as List<GiftSubscriptionShortcut>).asObservable()
-        } catch(e: ClassCastException) {
+            followShortcuts = FXCollections.observableArrayList(ois.readObject() as List<FollowShortcut>)
+            channelPointsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChannelPointsShortcut>)
+            cheerShortcuts = FXCollections.observableArrayList(ois.readObject() as List<CheerShortcut>)
+            subscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<SubscriptionShortcut>)
+            giftSubscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<GiftSubscriptionShortcut>)
+        } catch (e: ClassCastException) {
             print("Unable to deserialize shortcuts")
         }
     }

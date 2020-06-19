@@ -2,6 +2,8 @@ import javafx.scene.input.KeyCode
 import java.io.Serializable
 
 open class Shortcut(val modifiers: List<KeyCode>, val key: KeyCode) : Serializable {
+    val shortcutString: String get() = createShortcutString(modifiers, key)
+
     companion object {
         fun createShortcutString(modifiers: List<KeyCode>, key: KeyCode?): String {
             val keysPressed = mutableListOf<String>()
@@ -24,10 +26,6 @@ open class Shortcut(val modifiers: List<KeyCode>, val key: KeyCode) : Serializab
 
             return keysPressed.joinToString(" + ")
         }
-    }
-
-    fun createShortcutString(): String {
-        return createShortcutString(modifiers, key)
     }
 }
 
