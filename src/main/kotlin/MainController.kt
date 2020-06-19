@@ -18,9 +18,9 @@ import tornadofx.getValue
 import tornadofx.setValue
 
 class MainController : Controller() {
-    var twitchClient: TwitchClient? = null
-
     val model = Model.load()
+    val keyStroker = KeyStroker()
+    var twitchClient: TwitchClient? = null
 
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
