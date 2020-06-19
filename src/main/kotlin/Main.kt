@@ -19,28 +19,44 @@ class MainView : View() {
             padding = box(20.px)
         }
 
-        form {
-            maxWidth = 350.0
-            fieldset(labelPosition = Orientation.VERTICAL) {
-                disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
-                field("Channel Name") {
-                    textfield {
-                        bind(controller.channelNameProperty)
+        hbox {
+            form {
+                minWidth = 350.0
+                fieldset(labelPosition = Orientation.VERTICAL) {
+                    disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
+                    field("Channel Name") {
+                        textfield {
+                            bind(controller.channelNameProperty)
+                        }
+                    }
+                    field("OAuth Token") {
+                        textfield {
+                            bind(controller.oauthTokenProperty)
+                        }
+                        button("Get") {
+                            action { Desktop.getDesktop().browse(URI.create("https://twitchapps.com/tmi/")) }
+                        }
+                    }
+                    field {
+                        button("Start") {
+                            action { controller.start() }
+                        }
+                        label().bind(controller.errorTextProperty)
                     }
                 }
-                field("OAuth Token") {
-                    textfield {
-                        bind(controller.oauthTokenProperty)
+            }
+            form {
+                fitToParentWidth()
+                fieldset("Event Console") {
+                    tableview(controller.eventConsole.events) {
+                        smartResize()
+                        readonlyColumn("Time", ConsoleEvent::timeString) {
+                            isSortable = false
+                        }
+                        readonlyColumn("Event", ConsoleEvent::message) {
+                            isSortable = false
+                        }
                     }
-                    button("Get") {
-                        action { Desktop.getDesktop().browse(URI.create("https://twitchapps.com/tmi/")) }
-                    }
-                }
-                field {
-                    button("Start") {
-                        action { controller.start() }
-                    }
-                    label().bind(controller.errorTextProperty)
                 }
             }
         }

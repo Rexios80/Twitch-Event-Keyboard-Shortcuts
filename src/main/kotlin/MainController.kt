@@ -22,6 +22,8 @@ class MainController : Controller() {
     val keyStroker = KeyStroker()
     var twitchClient: TwitchClient? = null
 
+    val eventConsole = EventConsole()
+
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
 
@@ -59,9 +61,11 @@ class MainController : Controller() {
             resultList.users.find { it.displayName == channelName }!!.id
         } catch (e: HystrixRuntimeException) {
             errorText = "Channel not found"
+            eventConsole.log("Error starting: $errorText")
             return
         } catch (e: NullPointerException) {
             errorText = "Channel not found"
+            eventConsole.log("Error starting: $errorText")
             return
         }
 
@@ -81,7 +85,7 @@ class MainController : Controller() {
         twitchClient?.pubSub?.listenForSubscriptionEvents(credential, channelId)
 
         started = true
-        // TODO: Log to console
+        eventConsole.log("Started!")
     }
 
     fun handleKeyPress(event: KeyEvent) {
@@ -118,27 +122,34 @@ class MainController : Controller() {
 
     @EventSubscriber
     fun handleFollow(event: FollowEvent) {
-        print("follow: " + event.user.name)
-        // TODO: Log to console
+        eventConsole.log("Follow Event - User: " + event.user.name)
         model.followShortcuts.forEach {
             keyStroker.strokeKeys(it.modifiers, it.key)
+            eventConsole.log("Shortcut fired: " + it.shortcutString)
         }
     }
 
     @EventSubscriber
     fun handleChannelPointsRedemption(event: ChannelPointsRedemptionEvent) {
         val title = event.redemption.reward.title
-        println("channelPoints: $title")
-        // TODO: Log to console
+        eventConsole.log("Channel Points Redemption Event - User: " + event.redemption.user.displayName + ", Title: $title")
         model.channelPointsShortcuts.filter { it.title == title }.forEach {
             keyStroker.strokeKeys(it.modifiers, it.key)
+            eventConsole.log("Shortcut fired: " + it.shortcutString)
         }
     }
 
     @EventSubscriber
     fun handleCheer(event: CheerEvent) {
-        print("cheer: " + event.user.name + ", bits: " + event.bits)
-        // TODO: Log to console
+        eventConsole.log("Cheer Event - User: " + event.user.name + ", Bits: " + event.bits)
+        var previous: Shortcut? = null
+        model.cheerShortcuts.forEach {
+            if(event.bits < it.bits) {
+                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+                return
+            }
+            previous = it
+        }
     }
 
     @EventSubscriber
@@ -146,13 +157,27 @@ class MainController : Controller() {
         if (event.gifted) {
             return // Handle these elsewhere
         }
-        print("subscription: " + event.user.name + ", months: " + event.months)
-        // TODO: Log to console
+        eventConsole.log("Subscription Event - User: " + event.user.name + ", Months: " + event.months)
+        var previous: Shortcut? = null
+        model.subscriptionShortcuts.forEach {
+            if(event.months < it.months) {
+                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+                return
+            }
+            previous = it
+        }
     }
 
     @EventSubscriber
     fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
-        print("gift: " + event.user.name + ", count: " + event.count)
-        // TODO: Log to console
+        eventConsole.log("Gift Subscriptions Event - User: " + event.user.name + ", Count: " + event.count)
+        var previous: Shortcut? = null
+        model.giftSubscriptionShortcuts.forEach {
+            if(event.count < it.count) {
+                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+                return
+            }
+            previous = it
+        }
     }
 }
