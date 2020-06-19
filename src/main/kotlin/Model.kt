@@ -1,7 +1,5 @@
 import javafx.collections.FXCollections
 import javafx.collections.ListChangeListener
-import tornadofx.asObservable
-import tornadofx.observableListOf
 import java.io.*
 
 
@@ -46,6 +44,12 @@ class Model : Serializable {
     }
 
     fun save() {
+        // Auto sort lists
+        channelPointsShortcuts.sortBy { it.title }
+        cheerShortcuts.sortBy { it.bits }
+        subscriptionShortcuts.sortBy { it.months }
+        giftSubscriptionShortcuts.sortBy { it.count }
+
         ObjectOutputStream(FileOutputStream(configFile)).use { it.writeObject(this) }
     }
 

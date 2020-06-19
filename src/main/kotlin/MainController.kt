@@ -42,6 +42,8 @@ class MainController : Controller() {
     private var nonModifierKeyPressed: KeyCode? = null
 
     fun start() {
+        errorText = ""
+
         val token = oauthToken.removePrefix("oauth:")
         val credential = OAuth2Credential(null, token)
         twitchClient = TwitchClientBuilder.builder()
@@ -79,11 +81,7 @@ class MainController : Controller() {
         twitchClient?.pubSub?.listenForSubscriptionEvents(credential, channelId)
 
         started = true
-    }
-
-    fun stop() {
-        twitchClient?.close()
-        started = false
+        // TODO: Log to console
     }
 
     fun handleKeyPress(event: KeyEvent) {
@@ -121,16 +119,26 @@ class MainController : Controller() {
     @EventSubscriber
     fun handleFollow(event: FollowEvent) {
         print("follow: " + event.user.name)
+        // TODO: Log to console
+        model.followShortcuts.forEach {
+            keyStroker.strokeKeys(it.modifiers, it.key)
+        }
     }
 
     @EventSubscriber
     fun handleChannelPointsRedemption(event: ChannelPointsRedemptionEvent) {
-        println("channelPoints: " + event.redemption.reward.title)
+        val title = event.redemption.reward.title
+        println("channelPoints: $title")
+        // TODO: Log to console
+        model.channelPointsShortcuts.filter { it.title == title }.forEach {
+            keyStroker.strokeKeys(it.modifiers, it.key)
+        }
     }
 
     @EventSubscriber
     fun handleCheer(event: CheerEvent) {
         print("cheer: " + event.user.name + ", bits: " + event.bits)
+        // TODO: Log to console
     }
 
     @EventSubscriber
@@ -139,10 +147,12 @@ class MainController : Controller() {
             return // Handle these elsewhere
         }
         print("subscription: " + event.user.name + ", months: " + event.months)
+        // TODO: Log to console
     }
 
     @EventSubscriber
     fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
         print("gift: " + event.user.name + ", count: " + event.count)
+        // TODO: Log to console
     }
 }
