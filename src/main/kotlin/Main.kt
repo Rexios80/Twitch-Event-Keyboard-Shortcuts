@@ -57,6 +57,7 @@ class MainView : View() {
                     tableview(controller.eventConsole.events) {
                         smartResize()
                         readonlyColumn("Time", ConsoleEvent::timeString) {
+                            minWidth = 100.0
                             isSortable = false
                             isResizable = false
                         }

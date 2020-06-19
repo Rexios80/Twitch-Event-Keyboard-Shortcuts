@@ -46,8 +46,7 @@ class MainController : Controller() {
     fun start() {
         errorText = ""
 
-        val token = oauthToken.removePrefix("oauth:")
-        val credential = OAuth2Credential(null, token)
+        val credential = OAuth2Credential(null, oauthToken)
         twitchClient = TwitchClientBuilder.builder()
             .withEnableHelix(true)
             .withEnablePubSub(true)
@@ -57,7 +56,7 @@ class MainController : Controller() {
             .build()
 
         val channelId = try {
-            val resultList = twitchClient!!.helix.getUsers(token, null, listOf(channelName)).execute()
+            val resultList = twitchClient!!.helix.getUsers(oauthToken, null, listOf(channelName)).execute()
             resultList.users.find { it.displayName == channelName }!!.id
         } catch (e: HystrixRuntimeException) {
             errorText = "Channel not found"
@@ -70,11 +69,11 @@ class MainController : Controller() {
         }
 
         // Strip "oauth:" from entered string to show the user that it happened
-        oauthToken = token
+        oauthToken = oauthToken
 
         // Save the channelName and oauthToken
         model.channelName = channelName
-        model.oauthToken = token
+        model.oauthToken = oauthToken
         model.save()
 
         twitchClient?.eventManager?.getEventHandler(SimpleEventHandler::class.java)?.registerListener(this)
