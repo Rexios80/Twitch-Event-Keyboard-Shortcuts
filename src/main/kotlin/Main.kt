@@ -152,7 +152,7 @@ class MainView : View() {
             }
         }
 
-        fun handleKeyPress(event: KeyEvent, shortcut: Shortcut, property: SimpleStringProperty) {
+        private fun handleKeyPress(event: KeyEvent, shortcut: Shortcut, property: SimpleStringProperty) {
             if (event.eventType == KeyEvent.KEY_PRESSED) {
                 if (shortcut.modifiers.isEmpty() && shortcut.key != null) {
                     // This is a new key combination
@@ -164,15 +164,13 @@ class MainView : View() {
                 } else {
                     // This is the end of a key combination
                     shortcut.key = event.code
-                    shortcut.modifiers.clear()
                 }
 
                 property.value = shortcut.createShortcutString()
             } else if (event.eventType == KeyEvent.KEY_RELEASED) {
                 if (event.code.isModifierKey) {
-                    shortcut.modifiers.remove(event.code)
-
                     if (shortcut.key == null) {
+                        shortcut.modifiers.remove(event.code)
                         property.value = shortcut.createShortcutString()
                     }
                 }
