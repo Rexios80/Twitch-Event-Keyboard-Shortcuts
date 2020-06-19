@@ -1,13 +1,11 @@
 plugins {
+    id 'com.github.johnrengelman.shadow' version '6.0.0'
     id 'org.jetbrains.kotlin.jvm' version '1.3.72'
 }
 
-group 'org.example'
-version '1.0-SNAPSHOT'
-
 repositories {
     mavenCentral()
-    maven { url "https://oss.jfrog.org/artifactory/libs-release"}
+    maven { url "https://oss.jfrog.org/artifactory/libs-release" }
 }
 
 dependencies {
@@ -16,6 +14,12 @@ dependencies {
     implementation "com.github.twitch4j:twitch4j:1.0.0-alpha.20"
     implementation "ch.qos.logback:logback-classic:1.2.3"
     implementation "org.json:json:20200518"
+}
+
+jar {
+    manifest {
+        attributes 'Main-Class': 'TeksApp'
+    }
 }
 
 compileKotlin {

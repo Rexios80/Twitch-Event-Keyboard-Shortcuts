@@ -8,7 +8,7 @@ import java.awt.Desktop
 import java.net.URI
 
 
-class TornadoApp : App(MainView::class)
+class TeksApp : App(MainView::class)
 
 class MainView : View() {
     private val controller = MainController()
