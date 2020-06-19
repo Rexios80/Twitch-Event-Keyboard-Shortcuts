@@ -1,5 +1,4 @@
 import javafx.collections.FXCollections
-import javafx.collections.ListChangeListener
 import java.io.*
 
 
@@ -12,28 +11,12 @@ class Model : Serializable {
     var subscriptionShortcuts = FXCollections.observableArrayList<SubscriptionShortcut>()
     var giftSubscriptionShortcuts = FXCollections.observableArrayList<GiftSubscriptionShortcut>()
 
-    init {
-        setupAutoSave()
-    }
-
-    fun setupAutoSave() {
-        // Save the lists whenever they change
-        followShortcuts.addListener(ListChangeListener { save() })
-        channelPointsShortcuts.addListener(ListChangeListener { save() })
-        cheerShortcuts.addListener(ListChangeListener { save() })
-        subscriptionShortcuts.addListener(ListChangeListener { save() })
-        giftSubscriptionShortcuts.addListener(ListChangeListener { save() })
-    }
-
     companion object {
         private const val configFile = "teksConfig"
         fun load(): Model {
             try {
                 ObjectInputStream(FileInputStream(configFile)).use {
-                    val model = it.readObject() as Model
-                    // Deserialization calls init first so those listeners get overwritten
-                    model.setupAutoSave()
-                    return model
+                    return it.readObject() as Model
                 }
             } catch (e: FileNotFoundException) {
                 print("No config file found")

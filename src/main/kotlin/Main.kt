@@ -1,5 +1,6 @@
 import javafx.beans.binding.When
 import javafx.beans.property.SimpleIntegerProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.geometry.Orientation
 import javafx.scene.input.KeyEvent
 import tornadofx.*
@@ -12,7 +13,10 @@ class TornadoApp : App(MainView::class)
 class MainView : View() {
     private val controller = MainController()
 
+    private val rewardTitleProperty = SimpleStringProperty("")
     private val bitsProperty = SimpleIntegerProperty(0)
+    private val monthsProperty = SimpleIntegerProperty(0)
+    private val countProperty = SimpleIntegerProperty(0)
 
     override val root = vbox {
         style {
@@ -25,14 +29,10 @@ class MainView : View() {
                 fieldset(labelPosition = Orientation.VERTICAL) {
                     disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                     field("Channel Name") {
-                        textfield {
-                            bind(controller.channelNameProperty)
-                        }
+                        textfield().bind(controller.channelNameProperty)
                     }
                     field("OAuth Token") {
-                        textfield {
-                            bind(controller.oauthTokenProperty)
-                        }
+                        textfield().bind(controller.oauthTokenProperty)
                         button("Get") {
                             action { Desktop.getDesktop().browse(URI.create("https://twitchapps.com/tmi/")) }
                         }
@@ -66,7 +66,7 @@ class MainView : View() {
                 fieldset("Follow Shortcuts", labelPosition = Orientation.VERTICAL) {
                     field("spacer") {
                         isVisible = false
-                        textfield {}
+                        textfield()
                     }
                     field("Shortcut") {
                         textfield {
@@ -84,8 +84,46 @@ class MainView : View() {
                     field {
                         tableview(controller.model.followShortcuts) {
                             smartResize()
-                            readonlyColumn("Key Combination", FollowShortcut::shortcutString) {
+                            readonlyColumn("Shortcut", FollowShortcut::shortcutString) {
+                                prefWidth = 250.0
                                 isSortable = false
+                                isResizable = false
+                            }
+                        }
+                    }
+                }
+            }
+            // MARK: Channel Points Shortcuts
+            form {
+                fieldset("Channel Points Shortcuts", labelPosition = Orientation.VERTICAL) {
+                    field("Title") {
+                        textfield().bind(rewardTitleProperty)
+                    }
+                    field("Shortcut") {
+                        textfield {
+                            bind(controller.shortcutStringProperty)
+                            isEditable = false
+                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
+                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
+                        }
+                    }
+                    field {
+                        button("Add") {
+                            action { controller.addChannelPointsShortcut(rewardTitleProperty.value) }
+                        }
+                    }
+                    field {
+                        tableview(controller.model.channelPointsShortcuts) {
+                            smartResize()
+                            readonlyColumn("Title", ChannelPointsShortcut::title) {
+                                prefWidth = 80.0
+                                isResizable = false
+                                isResizable = false
+                            }
+                            readonlyColumn("Shortcut", ChannelPointsShortcut::shortcutString) {
+                                prefWidth = 250.0
+                                isSortable = false
+                                isResizable = false
                             }
                         }
                     }
@@ -109,25 +147,31 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
-                            action { controller.addFollowShortcut() }
+                            action { controller.addCheerShortcut(bitsProperty.value) }
                         }
                     }
                     field {
-                        tableview(controller.model.followShortcuts) {
+                        tableview(controller.model.cheerShortcuts) {
                             smartResize()
-                            readonlyColumn("Key Combination", FollowShortcut::shortcutString) {
+                            readonlyColumn("Bits", CheerShortcut::bits) {
+                                prefWidth = 80.0
                                 isSortable = false
+                                isResizable = false
+                            }
+                            readonlyColumn("Shortcut", CheerShortcut::shortcutString) {
+                                prefWidth = 250.0
+                                isSortable = false
+                                isResizable = false
                             }
                         }
                     }
                 }
             }
-            // MARK: Follow Shortcuts
+            // MARK: Subscription Shortcuts
             form {
-                fieldset("Follow Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("spacer") {
-                        isVisible = false
-                        textfield {}
+                fieldset("Subscription Shortcuts", labelPosition = Orientation.VERTICAL) {
+                    field("Months") {
+                        textfield().bind(monthsProperty)
                     }
                     field("Shortcut") {
                         textfield {
@@ -139,25 +183,31 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
-                            action { controller.addFollowShortcut() }
+                            action { controller.addSubscriptionShortcut(monthsProperty.value) }
                         }
                     }
                     field {
-                        tableview(controller.model.followShortcuts) {
+                        tableview(controller.model.subscriptionShortcuts) {
                             smartResize()
-                            readonlyColumn("Key Combination", FollowShortcut::shortcutString) {
+                            readonlyColumn("Months", SubscriptionShortcut::months) {
+                                prefWidth = 80.0
                                 isSortable = false
+                                isResizable = false
+                            }
+                            readonlyColumn("Shortcut", SubscriptionShortcut::shortcutString) {
+                                prefWidth = 250.0
+                                isSortable = false
+                                isResizable = false
                             }
                         }
                     }
                 }
             }
-            // MARK: Follow Shortcuts
+            // MARK: Gift Subscription Shortcuts
             form {
-                fieldset("Follow Shortcuts", labelPosition = Orientation.VERTICAL) {
+                fieldset("Gift Subscription Shortcuts", labelPosition = Orientation.VERTICAL) {
                     field("spacer") {
-                        isVisible = false
-                        textfield {}
+                        textfield().bind(countProperty)
                     }
                     field("Shortcut") {
                         textfield {
@@ -169,14 +219,21 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
-                            action { controller.addFollowShortcut() }
+                            action { controller.addGiftSubscriptionShortcut(countProperty.value) }
                         }
                     }
                     field {
-                        tableview(controller.model.followShortcuts) {
+                        tableview(controller.model.giftSubscriptionShortcuts) {
                             smartResize()
-                            readonlyColumn("Key Combination", FollowShortcut::shortcutString) {
+                            readonlyColumn("Count", GiftSubscriptionShortcut::count) {
+                                prefWidth = 80.0
                                 isSortable = false
+                                isResizable = false
+                            }
+                            readonlyColumn("Shortcut", GiftSubscriptionShortcut::shortcutString) {
+                                prefWidth = 250.0
+                                isSortable = false
+                                isResizable = false
                             }
                         }
                     }

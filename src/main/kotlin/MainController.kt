@@ -118,6 +118,63 @@ class MainController : Controller() {
 
     fun addFollowShortcut() {
         model.followShortcuts.add(FollowShortcut(savedModifierKeys.toMutableList(), nonModifierKeyPressed ?: return))
+        model.save()
+    }
+
+    fun addChannelPointsShortcut(title: String) {
+        if (title.isEmpty()) {
+            return
+        }
+        model.channelPointsShortcuts.add(
+            ChannelPointsShortcut(
+                savedModifierKeys.toMutableList(),
+                nonModifierKeyPressed ?: return,
+                title
+            )
+        )
+        model.save()
+    }
+
+    fun addCheerShortcut(bits: Int) {
+        if (bits < 0) {
+            return
+        }
+        model.cheerShortcuts.add(
+            CheerShortcut(
+                savedModifierKeys.toMutableList(),
+                nonModifierKeyPressed ?: return,
+                bits
+            )
+        )
+        model.save()
+    }
+
+    fun addSubscriptionShortcut(months: Int) {
+        if (months < 0) {
+            return
+        }
+        model.subscriptionShortcuts.add(
+            SubscriptionShortcut(
+                savedModifierKeys.toMutableList(),
+                nonModifierKeyPressed ?: return,
+                months
+            )
+        )
+        model.save()
+    }
+
+    fun addGiftSubscriptionShortcut(count: Int) {
+        if (count < 0) {
+            return
+        }
+        model.giftSubscriptionShortcuts.add(
+            GiftSubscriptionShortcut(
+                savedModifierKeys.toMutableList(),
+                nonModifierKeyPressed ?: return,
+                count
+            )
+        )
+        model.save()
     }
 
     @EventSubscriber
@@ -144,12 +201,15 @@ class MainController : Controller() {
         eventConsole.log("Cheer Event - User: " + event.user.name + ", Bits: " + event.bits)
         var previous: Shortcut? = null
         model.cheerShortcuts.forEach {
-            if(event.bits < it.bits) {
+            if (event.bits < it.bits) {
                 keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
                 return
             }
             previous = it
         }
+
+        // The value is higher than the last value in the list
+        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
     }
 
     @EventSubscriber
@@ -160,12 +220,15 @@ class MainController : Controller() {
         eventConsole.log("Subscription Event - User: " + event.user.name + ", Months: " + event.months)
         var previous: Shortcut? = null
         model.subscriptionShortcuts.forEach {
-            if(event.months < it.months) {
+            if (event.months < it.months) {
                 keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
                 return
             }
             previous = it
         }
+
+        // The value is higher than the last value in the list
+        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
     }
 
     @EventSubscriber
@@ -173,11 +236,14 @@ class MainController : Controller() {
         eventConsole.log("Gift Subscriptions Event - User: " + event.user.name + ", Count: " + event.count)
         var previous: Shortcut? = null
         model.giftSubscriptionShortcuts.forEach {
-            if(event.count < it.count) {
+            if (event.count < it.count) {
                 keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
                 return
             }
             previous = it
         }
+
+        // The value is higher than the last value in the list
+        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
     }
 }
