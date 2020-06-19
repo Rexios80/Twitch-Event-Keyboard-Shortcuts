@@ -29,6 +29,7 @@ class MainView : View() {
             padding = box(20.px)
         }
 
+        // Unfocus textfield on startup
         runLater { requestFocus() }
 
         hbox {
