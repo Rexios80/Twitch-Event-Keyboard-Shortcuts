@@ -4,12 +4,12 @@ import java.awt.Robot
 class KeyStroker {
     private val robot = Robot()
 
-    fun strokeKeys(modifiers: List<KeyCode>, key: KeyCode) {
+    fun strokeKeys(shortcut: Shortcut) {
         val field = KeyCode::class.java.getDeclaredField("code")
         field.isAccessible = true
 
-        val modifierCodes = modifiers.map { field.getInt(it) }
-        val keyCode = field.getInt(key)
+        val modifierCodes = shortcut.modifiers.map { field.getInt(it) }
+        val keyCode = field.getInt(shortcut.key)
 
         modifierCodes.forEach {
             robot.keyPress(it)

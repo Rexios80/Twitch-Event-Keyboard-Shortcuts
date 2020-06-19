@@ -1,7 +1,10 @@
+import com.github.twitch4j.helix.domain.Follow
 import javafx.beans.binding.When
-import javafx.beans.property.SimpleIntegerProperty
-import javafx.beans.property.SimpleStringProperty
+import javafx.beans.property.*
+import javafx.collections.ObservableList
 import javafx.geometry.Orientation
+import javafx.scene.control.TableColumn
+import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import tornadofx.*
 import java.awt.Desktop
@@ -43,7 +46,10 @@ class MainView : View() {
                     field("OAuth Token") {
                         textfield().bind(controller.oauthTokenProperty)
                         button("Get") {
-                            action { Desktop.getDesktop().browse(URI.create("https://twitchtokengenerator.com/quick/dTzb2hfaP5")) }
+                            action {
+                                Desktop.getDesktop()
+                                    .browse(URI.create("https://twitchtokengenerator.com/quick/dTzb2hfaP5"))
+                            }
                         }
                     }
                     field {
@@ -73,216 +79,101 @@ class MainView : View() {
             }
         }
         hbox {
-            // MARK: Follow Shortcuts
-            form {
-                fieldset("Follow Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("spacer") {
+            add(ShortcutsView<FollowShortcut>(controller, "Follow Shortcuts"))
+        }
+    }
+
+    class ShortcutsView<T : MetaShortcut>(controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null, valueColumn: TableColumn<T, String>? = null) : Fragment() {
+        val valueProperty = SimpleStringProperty("")
+        val shortcutOnEventString = SimpleStringProperty("")
+        val waitTimeProperty = SimpleLongProperty()
+        val shortcutAfterWaitString = SimpleStringProperty("")
+        val alwaysFireProperty = SimpleBooleanProperty(false)
+
+        val shortcutOnEvent = Shortcut(mutableListOf(), null)
+        val shortcutAfterWait = Shortcut(mutableListOf(), null)
+
+        var selectedShortcut: MetaShortcut? = null
+
+        override val root = form {
+            fieldset(title, labelPosition = Orientation.VERTICAL) {
+                field(valueLabel) {
+                    if (!hasValue) {
                         isVisible = false
-                        textfield()
                     }
-                    field("Shortcut") {
-                        textfield {
-                            bind(controller.shortcutStringProperty)
-                            isEditable = false
-                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-                        }
+                    textfield().bind(valueProperty)
+                }
+                field("Shortcut On Event") {
+                    textfield {
+                        bind(shortcutOnEventString)
+                        isEditable = false
+                        addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                        addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
                     }
-                    field {
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addFollowShortcut() }
-                        }
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeFollowShortcut(selectedFollowShortcut) }
-                        }
+                }
+                field("Wait Time (Milliseconds)") {
+                    textfield().bind(waitTimeProperty)
+                }
+                field("Shortcut After Wait") {
+                    textfield {
+                        bind(shortcutAfterWaitString)
+                        isEditable = false
+                        addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
+                        addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
                     }
-                    field {
-                        tableview(controller.model.followShortcuts) {
-                            readonlyColumn("Shortcut", FollowShortcut::shortcutString) {
-                                prefWidth = 250.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            selectionModel.selectedItemProperty().onChange {
-                                selectedFollowShortcut = it
-                            }
+                }
+                field {
+                    checkbox("Always fire").bind(alwaysFireProperty)
+                }
+                field {
+                    button("Add") {
+                        minWidth = 75.0
+                        // TODO: Clone shortcuts to prevent unintended editing
+                        action { controller.addShortcut<FollowShortcut>(valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value, shortcutAfterWait.copy(), alwaysFireProperty.value) }
+                    }
+                    button("Delete") {
+                        minWidth = 75.0
+//                        action { controller.removeFollowShortcut(selectedFollowShortcut) }
+                    }
+                }
+                field {
+                    tableview(controller.getShortcutsList<T>() as ObservableList<MetaShortcut>) {
+                        valueColumn
+                        readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
+                            prefWidth = 250.0
+                            isSortable = false
+                            isResizable = false
+                        }
+                        selectionModel.selectedItemProperty().onChange {
+                            selectedShortcut = it
                         }
                     }
                 }
             }
-            // MARK: Channel Points Shortcuts
-            form {
-                fieldset("Channel Points Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("Title") {
-                        textfield().bind(rewardTitleProperty)
-                    }
-                    field("Shortcut") {
-                        textfield {
-                            bind(controller.shortcutStringProperty)
-                            isEditable = false
-                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-                        }
-                    }
-                    field {
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addChannelPointsShortcut(rewardTitleProperty.value) }
-                        }
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeChannelPointsShortcut(selectedChannelPointsShortcut) }
-                        }
-                    }
-                    field {
-                        tableview(controller.model.channelPointsShortcuts) {
-                            readonlyColumn("Title", ChannelPointsShortcut::title) {
-                                prefWidth = 80.0
-                                isResizable = false
-                                isResizable = false
-                            }
-                            readonlyColumn("Shortcut", ChannelPointsShortcut::shortcutString) {
-                                prefWidth = 250.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            selectionModel.selectedItemProperty().onChange {
-                                selectedChannelPointsShortcut = it
-                            }
-                        }
-                    }
+        }
+
+        fun handleKeyPress(event: KeyEvent, shortcut: Shortcut, property: SimpleStringProperty) {
+            if (event.eventType == KeyEvent.KEY_PRESSED) {
+                if (shortcut.modifiers.isEmpty() && shortcut.key != null) {
+                    // This is a new key combination
+                    shortcut.modifiers.clear()
+                    shortcut.key = null
                 }
-            }
-            // MARK: Cheer Shortcuts
-            form {
-                fieldset("Cheer Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("Bits") {
-                        textfield {
-                            bind(bitsProperty)
-                        }
-                    }
-                    field("Shortcut") {
-                        textfield {
-                            bind(controller.shortcutStringProperty)
-                            isEditable = false
-                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-                        }
-                    }
-                    field {
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addCheerShortcut(bitsProperty.value) }
-                        }
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeCheerShortcut(selectedCheerShortcut) }
-                        }
-                    }
-                    field {
-                        tableview(controller.model.cheerShortcuts) {
-                            readonlyColumn("Bits", CheerShortcut::bits) {
-                                prefWidth = 80.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            readonlyColumn("Shortcut", CheerShortcut::shortcutString) {
-                                prefWidth = 250.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            selectionModel.selectedItemProperty().onChange {
-                                selectedCheerShortcut = it
-                            }
-                        }
-                    }
+                if (event.code.isModifierKey) {
+                    shortcut.modifiers.add(event.code)
+                } else {
+                    // This is the end of a key combination
+                    shortcut.key = event.code
+                    shortcut.modifiers.clear()
                 }
-            }
-            // MARK: Subscription Shortcuts
-            form {
-                fieldset("Subscription Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("Months") {
-                        textfield().bind(monthsProperty)
-                    }
-                    field("Shortcut") {
-                        textfield {
-                            bind(controller.shortcutStringProperty)
-                            isEditable = false
-                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-                        }
-                    }
-                    field {
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addSubscriptionShortcut(monthsProperty.value) }
-                        }
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeSubscriptionShortcut(selectedSubscriptionShortcut) }
-                        }
-                    }
-                    field {
-                        tableview(controller.model.subscriptionShortcuts) {
-                            readonlyColumn("Months", SubscriptionShortcut::months) {
-                                prefWidth = 80.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            readonlyColumn("Shortcut", SubscriptionShortcut::shortcutString) {
-                                prefWidth = 250.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            selectionModel.selectedItemProperty().onChange {
-                                selectedSubscriptionShortcut = it
-                            }
-                        }
-                    }
-                }
-            }
-            // MARK: Gift Subscription Shortcuts
-            form {
-                fieldset("Gift Subscription Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("Count") {
-                        textfield().bind(countProperty)
-                    }
-                    field("Shortcut") {
-                        textfield {
-                            bind(controller.shortcutStringProperty)
-                            isEditable = false
-                            addEventHandler(KeyEvent.KEY_PRESSED) { controller.handleKeyPress(it) }
-                            addEventHandler(KeyEvent.KEY_RELEASED) { controller.handleKeyPress(it) }
-                        }
-                    }
-                    field {
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addGiftSubscriptionShortcut(countProperty.value) }
-                        }
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeGiftSubscriptionShortcut(selectedGiftSubscriptionShortcut) }
-                        }
-                    }
-                    field {
-                        tableview(controller.model.giftSubscriptionShortcuts) {
-                            readonlyColumn("Count", GiftSubscriptionShortcut::count) {
-                                prefWidth = 80.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            readonlyColumn("Shortcut", GiftSubscriptionShortcut::shortcutString) {
-                                prefWidth = 250.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            selectionModel.selectedItemProperty().onChange {
-                                selectedGiftSubscriptionShortcut = it
-                            }
-                        }
+
+                property.value = shortcut.createShortcutString()
+            } else if (event.eventType == KeyEvent.KEY_RELEASED) {
+                if (event.code.isModifierKey) {
+                    shortcut.modifiers.remove(event.code)
+
+                    if (shortcut.key == null) {
+                        property.value = shortcut.createShortcutString()
                     }
                 }
             }
