@@ -1,6 +1,7 @@
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.philippheuer.events4j.simple.SimpleEventHandler
 import com.github.philippheuer.events4j.simple.domain.EventSubscriber
+import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
 import com.github.twitch4j.chat.events.channel.CheerEvent
 import com.github.twitch4j.chat.events.channel.FollowEvent
@@ -8,12 +9,14 @@ import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
 import com.github.twitch4j.chat.events.channel.SubscriptionEvent
 import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent
 import com.netflix.hystrix.exception.HystrixRuntimeException
+import javafx.beans.binding.When
+import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
-import javafx.geometry.Pos
 import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
-import okhttp3.OkHttpClient
 import tornadofx.*
+import java.awt.Desktop
+import java.net.URI
 
 
 class TornadoApp : App(MainView::class)
@@ -26,20 +29,27 @@ class MainView : View() {
             padding = box(20.px)
         }
 
-        hbox {
-            style {
-                alignment = Pos.CENTER
-                setSpacing(20.0)
+        form {
+            fieldset {
+                field("Channel Name") {
+                    textfield().bind(controller.channelNameProperty)
+                }
+                field("OAuth Token") {
+                    textfield().bind(controller.oauthTokenProperty)
+                    button("Get") {
+                        action { Desktop.getDesktop().browse(URI.create("https://twitchapps.com/tmi/")) }
+                    }
+                }
+                field {
+                    button {
+                        textProperty().bind(When(controller.startedProperty).then("Stop").otherwise("Start"))
+                        action {
+                            When(controller.startedProperty).then(controller.stop()).otherwise(controller.start())
+                        }
+                    }
+                    label().bind(controller.errorTextProperty)
+                }
             }
-            label("Channel Name")
-            textfield().bind(controller.channelNameProperty)
-            button("Start") {
-                action { controller.start() }
-            }
-            label().bind(controller.errorTextProperty)
-        }
-        spacer {
-            minHeight = 20.0
         }
         hbox {
             textfield {
@@ -65,20 +75,18 @@ class MainView : View() {
 }
 
 class MainController : Controller() {
-    private val accessToken = AccessToken(Secret.clientId, Secret.clientSecret, OkHttpClient())
-    private val credential: OAuth2Credential get() = OAuth2Credential(null, accessToken.accessToken)
-    private val twitchClient = TwitchClientBuilder.builder()
-        .withEnableHelix(true)
-        .withEnablePubSub(true)
-        .withDefaultAuthToken(credential)
-        .withClientId(Secret.clientId)
-        .withClientSecret(Secret.clientSecret)
-        .build()
+    var twitchClient: TwitchClient? = null
 
     val model = Model.load()
 
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
+
+    val oauthTokenProperty = SimpleStringProperty(model.oauthToken)
+    private var oauthToken by oauthTokenProperty
+
+    val startedProperty = SimpleBooleanProperty(false)
+    private var started by startedProperty
 
     val errorTextProperty = SimpleStringProperty("")
     private var errorText by errorTextProperty
@@ -91,8 +99,18 @@ class MainController : Controller() {
     private var nonModifierKeyPressed: KeyCode? = null
 
     fun start() {
+        val token = oauthToken.removePrefix("oauth:")
+        val credential = OAuth2Credential(null, token)
+        twitchClient = TwitchClientBuilder.builder()
+            .withEnableHelix(true)
+            .withEnablePubSub(true)
+            .withDefaultAuthToken(credential)
+            .withClientId(Secret.clientId)
+            .withClientSecret(Secret.clientSecret)
+            .build()
+
         val channelId = try {
-            val resultList = twitchClient.helix.getUsers(accessToken.accessToken, null, listOf(channelName)).execute()
+            val resultList = twitchClient!!.helix.getUsers(token, null, listOf(channelName)).execute()
             resultList.users.find { it.displayName == channelName }!!.id
         } catch (e: HystrixRuntimeException) {
             errorText = "Channel not found"
@@ -102,18 +120,27 @@ class MainController : Controller() {
             return
         }
 
-        // Update the saved channelName
+        // Strip "oauth:" from entered string to show the user that it happened
+        oauthToken = token
+
+        // Save the channelName and oauthToken
         model.channelName = channelName
+        model.oauthToken = token
         model.save()
 
-        errorText = channelId
+        twitchClient?.eventManager?.getEventHandler(SimpleEventHandler::class.java)?.registerListener(this)
 
-        twitchClient.eventManager.getEventHandler(SimpleEventHandler::class.java).registerListener(this)
+        twitchClient?.clientHelper?.enableFollowEventListener(channelName)
+        twitchClient?.pubSub?.listenForChannelPointsRedemptionEvents(credential, channelId)
+        twitchClient?.pubSub?.listenForCheerEvents(credential, channelId)
+        twitchClient?.pubSub?.listenForSubscriptionEvents(credential, channelId)
 
-        twitchClient.clientHelper.enableFollowEventListener(channelName)
-        twitchClient.pubSub.listenForChannelPointsRedemptionEvents(credential, channelId)
-        twitchClient.pubSub.listenForCheerEvents(credential, channelId)
-        twitchClient.pubSub.listenForSubscriptionEvents(credential, channelId)
+        started = true
+    }
+
+    fun stop() {
+        twitchClient?.close()
+        started = false
     }
 
     fun handleKeyPress(event: KeyEvent) {

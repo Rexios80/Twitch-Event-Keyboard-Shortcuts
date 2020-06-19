@@ -9,6 +9,7 @@ import java.util.*
 
 class Model : Serializable {
     var channelName = ""
+    var oauthToken = ""
     var followShortcuts = observableListOf<FollowShortcut>()
     var channelPointsShortcuts = observableListOf<ChannelPointsShortcut>()
     var cheerShortcuts = observableListOf<CheerShortcut>()
@@ -46,6 +47,7 @@ class Model : Serializable {
 
     private fun writeObject(oos: ObjectOutputStream) {
         oos.writeUTF(channelName)
+        oos.writeUTF(oauthToken)
         oos.writeObject(followShortcuts.toList())
         oos.writeObject(channelPointsShortcuts.toList())
         oos.writeObject(cheerShortcuts.toList())
@@ -55,6 +57,7 @@ class Model : Serializable {
 
     private fun readObject(ois: ObjectInputStream) {
         channelName = ois.readUTF()
+        oauthToken = ois.readUTF()
 
         try {
             followShortcuts = (ois.readObject() as List<FollowShortcut>).asObservable()
