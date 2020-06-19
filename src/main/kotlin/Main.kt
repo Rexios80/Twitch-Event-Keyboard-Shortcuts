@@ -32,7 +32,7 @@ class MainView : View() {
         hbox {
             form {
                 minWidth = 350.0
-                fieldset(labelPosition = Orientation.VERTICAL) {
+                fieldset("Authentication", labelPosition = Orientation.VERTICAL) {
                     disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                     field("Channel Name") {
                         textfield().bind(controller.channelNameProperty)
