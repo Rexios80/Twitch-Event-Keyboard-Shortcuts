@@ -51,8 +51,6 @@ class MainController : Controller() {
             .withEnableHelix(true)
             .withEnablePubSub(true)
             .withDefaultAuthToken(credential)
-            .withClientId(Secret.clientId)
-            .withClientSecret(Secret.clientSecret)
             .build()
 
         val channelId = try {
