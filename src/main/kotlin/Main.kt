@@ -29,6 +29,8 @@ class MainView : View() {
             padding = box(20.px)
         }
 
+        runLater { requestFocus() }
+
         hbox {
             form {
                 minWidth = 350.0
