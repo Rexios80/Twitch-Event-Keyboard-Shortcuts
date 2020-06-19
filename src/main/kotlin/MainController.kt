@@ -121,6 +121,11 @@ class MainController : Controller() {
         model.save()
     }
 
+    fun removeFollowShortcut(shortcut: FollowShortcut?) {
+        model.followShortcuts.remove(shortcut)
+        model.save()
+    }
+
     fun addChannelPointsShortcut(title: String) {
         if (title.isEmpty()) {
             return
@@ -132,6 +137,11 @@ class MainController : Controller() {
                 title
             )
         )
+        model.save()
+    }
+
+    fun removeChannelPointsShortcut(shortcut: ChannelPointsShortcut?) {
+        model.channelPointsShortcuts.remove(shortcut)
         model.save()
     }
 
@@ -149,6 +159,11 @@ class MainController : Controller() {
         model.save()
     }
 
+    fun removeCheerShortcut(shortcut: CheerShortcut?) {
+        model.cheerShortcuts.remove(shortcut)
+        model.save()
+    }
+
     fun addSubscriptionShortcut(months: Int) {
         if (months < 0) {
             return
@@ -163,6 +178,11 @@ class MainController : Controller() {
         model.save()
     }
 
+    fun removeSubscriptionShortcut(shortcut: SubscriptionShortcut?) {
+        model.subscriptionShortcuts.remove(shortcut)
+        model.save()
+    }
+
     fun addGiftSubscriptionShortcut(count: Int) {
         if (count < 0) {
             return
@@ -174,6 +194,11 @@ class MainController : Controller() {
                 count
             )
         )
+        model.save()
+    }
+
+    fun removeGiftSubscriptionShortcut(shortcut: GiftSubscriptionShortcut?) {
+        model.giftSubscriptionShortcuts.remove(shortcut)
         model.save()
     }
 

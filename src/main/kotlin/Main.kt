@@ -18,6 +18,12 @@ class MainView : View() {
     private val monthsProperty = SimpleIntegerProperty(0)
     private val countProperty = SimpleIntegerProperty(0)
 
+    private var selectedFollowShortcut: FollowShortcut? = null
+    private var selectedChannelPointsShortcut: ChannelPointsShortcut? = null
+    private var selectedCheerShortcut: CheerShortcut? = null
+    private var selectedSubscriptionShortcut: SubscriptionShortcut? = null
+    private var selectedGiftSubscriptionShortcut: GiftSubscriptionShortcut? = null
+
     override val root = vbox {
         style {
             padding = box(20.px)
@@ -52,9 +58,11 @@ class MainView : View() {
                         smartResize()
                         readonlyColumn("Time", ConsoleEvent::timeString) {
                             isSortable = false
+                            isResizable = false
                         }
                         readonlyColumn("Event", ConsoleEvent::message) {
                             isSortable = false
+                            isResizable = false
                         }
                     }
                 }
@@ -78,16 +86,23 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
+                            minWidth = 75.0
                             action { controller.addFollowShortcut() }
+                        }
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeFollowShortcut(selectedFollowShortcut) }
                         }
                     }
                     field {
                         tableview(controller.model.followShortcuts) {
-                            smartResize()
                             readonlyColumn("Shortcut", FollowShortcut::shortcutString) {
                                 prefWidth = 250.0
                                 isSortable = false
                                 isResizable = false
+                            }
+                            selectionModel.selectedItemProperty().onChange {
+                                selectedFollowShortcut = it
                             }
                         }
                     }
@@ -109,12 +124,16 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
+                            minWidth = 75.0
                             action { controller.addChannelPointsShortcut(rewardTitleProperty.value) }
+                        }
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeChannelPointsShortcut(selectedChannelPointsShortcut) }
                         }
                     }
                     field {
                         tableview(controller.model.channelPointsShortcuts) {
-                            smartResize()
                             readonlyColumn("Title", ChannelPointsShortcut::title) {
                                 prefWidth = 80.0
                                 isResizable = false
@@ -124,6 +143,9 @@ class MainView : View() {
                                 prefWidth = 250.0
                                 isSortable = false
                                 isResizable = false
+                            }
+                            selectionModel.selectedItemProperty().onChange {
+                                selectedChannelPointsShortcut = it
                             }
                         }
                     }
@@ -147,12 +169,16 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
+                            minWidth = 75.0
                             action { controller.addCheerShortcut(bitsProperty.value) }
+                        }
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeCheerShortcut(selectedCheerShortcut) }
                         }
                     }
                     field {
                         tableview(controller.model.cheerShortcuts) {
-                            smartResize()
                             readonlyColumn("Bits", CheerShortcut::bits) {
                                 prefWidth = 80.0
                                 isSortable = false
@@ -162,6 +188,9 @@ class MainView : View() {
                                 prefWidth = 250.0
                                 isSortable = false
                                 isResizable = false
+                            }
+                            selectionModel.selectedItemProperty().onChange {
+                                selectedCheerShortcut = it
                             }
                         }
                     }
@@ -183,12 +212,16 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
+                            minWidth = 75.0
                             action { controller.addSubscriptionShortcut(monthsProperty.value) }
+                        }
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeSubscriptionShortcut(selectedSubscriptionShortcut) }
                         }
                     }
                     field {
                         tableview(controller.model.subscriptionShortcuts) {
-                            smartResize()
                             readonlyColumn("Months", SubscriptionShortcut::months) {
                                 prefWidth = 80.0
                                 isSortable = false
@@ -199,6 +232,9 @@ class MainView : View() {
                                 isSortable = false
                                 isResizable = false
                             }
+                            selectionModel.selectedItemProperty().onChange {
+                                selectedSubscriptionShortcut = it
+                            }
                         }
                     }
                 }
@@ -206,7 +242,7 @@ class MainView : View() {
             // MARK: Gift Subscription Shortcuts
             form {
                 fieldset("Gift Subscription Shortcuts", labelPosition = Orientation.VERTICAL) {
-                    field("spacer") {
+                    field("Count") {
                         textfield().bind(countProperty)
                     }
                     field("Shortcut") {
@@ -219,12 +255,16 @@ class MainView : View() {
                     }
                     field {
                         button("Add") {
+                            minWidth = 75.0
                             action { controller.addGiftSubscriptionShortcut(countProperty.value) }
+                        }
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeGiftSubscriptionShortcut(selectedGiftSubscriptionShortcut) }
                         }
                     }
                     field {
                         tableview(controller.model.giftSubscriptionShortcuts) {
-                            smartResize()
                             readonlyColumn("Count", GiftSubscriptionShortcut::count) {
                                 prefWidth = 80.0
                                 isSortable = false
@@ -234,6 +274,9 @@ class MainView : View() {
                                 prefWidth = 250.0
                                 isSortable = false
                                 isResizable = false
+                            }
+                            selectionModel.selectedItemProperty().onChange {
+                                selectedGiftSubscriptionShortcut = it
                             }
                         }
                     }
