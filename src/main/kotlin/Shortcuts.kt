@@ -22,7 +22,8 @@ open class Shortcut(val modifiers: List<KeyCode>, val key: KeyCode) : Serializab
             if (modifiers.contains(KeyCode.SHIFT)) {
                 keysPressed.add("Shift")
             }
-            keysPressed.add(key?.name ?: "")
+            val keyName = key?.name ?: ""
+            keysPressed.add(keyName.split("_").joinToString(" ") { it.toLowerCase().capitalize() })
 
             return keysPressed.joinToString(" + ")
         }

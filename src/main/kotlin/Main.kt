@@ -1,4 +1,5 @@
 import javafx.beans.binding.When
+import javafx.geometry.Orientation
 import javafx.scene.input.KeyEvent
 import tornadofx.*
 import java.awt.Desktop
@@ -16,7 +17,7 @@ class MainView : View() {
         }
 
         form {
-            fieldset {
+            fieldset(labelPosition = Orientation.VERTICAL) {
                 field("Channel Name") {
                     textfield().bind(controller.channelNameProperty)
                 }

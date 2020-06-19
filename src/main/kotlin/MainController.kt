@@ -115,7 +115,7 @@ class MainController : Controller() {
     }
 
     fun addFollowShortcut() {
-        model.followShortcuts.add(FollowShortcut(savedModifierKeys, nonModifierKeyPressed ?: return))
+        model.followShortcuts.add(FollowShortcut(savedModifierKeys.toMutableList(), nonModifierKeyPressed ?: return))
     }
 
     @EventSubscriber
