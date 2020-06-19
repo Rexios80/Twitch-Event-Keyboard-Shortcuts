@@ -22,31 +22,23 @@ class MainView : View() {
         form {
             maxWidth = 350.0
             fieldset(labelPosition = Orientation.VERTICAL) {
+                disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                 field("Channel Name") {
                     textfield {
                         bind(controller.channelNameProperty)
-                        disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                     }
                 }
                 field("OAuth Token") {
                     textfield {
                         bind(controller.oauthTokenProperty)
-                        disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                     }
                     button("Get") {
                         action { Desktop.getDesktop().browse(URI.create("https://twitchapps.com/tmi/")) }
                     }
                 }
                 field {
-                    button {
-                        textProperty().bind(When(controller.startedProperty).then("Stop").otherwise("Start"))
-                        action {
-                            if (controller.startedProperty.value) {
-                                controller.stop()
-                            } else {
-                                controller.start()
-                            }
-                        }
+                    button("Start") {
+                        action { controller.start() }
                     }
                     label().bind(controller.errorTextProperty)
                 }
