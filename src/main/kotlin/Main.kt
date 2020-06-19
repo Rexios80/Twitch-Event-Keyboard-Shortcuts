@@ -44,7 +44,11 @@ class MainView : View() {
                     button {
                         textProperty().bind(When(controller.startedProperty).then("Stop").otherwise("Start"))
                         action {
-                            When(controller.startedProperty).then(controller.stop()).otherwise(controller.start())
+                            if(controller.startedProperty.value) {
+                                controller.stop()
+                            } else {
+                                controller.start()
+                            }
                         }
                     }
                     label().bind(controller.errorTextProperty)
