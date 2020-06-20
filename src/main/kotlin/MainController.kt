@@ -1,7 +1,15 @@
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.philippheuer.events4j.simple.SimpleEventHandler
+import com.github.philippheuer.events4j.simple.domain.EventSubscriber
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
+import com.github.twitch4j.chat.events.channel.CheerEvent
+import com.github.twitch4j.chat.events.channel.FollowEvent
+import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
+import com.github.twitch4j.chat.events.channel.SubscriptionEvent
+import com.github.twitch4j.pubsub.events.ChannelBitsEvent
+import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent
+import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent
 import com.netflix.hystrix.exception.HystrixRuntimeException
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
@@ -88,28 +96,28 @@ class MainController : Controller() {
 
     }
 
-//    @EventSubscriber
-//    fun handleFollow(event: FollowEvent) {
-//        eventConsole.log("Follow Event - User: " + event.user.name)
+    @EventSubscriber
+    fun handleFollow(event: FollowEvent) {
+        eventConsole.log("Follow Event - User: " + event.user.name)
 //        model.followShortcuts.forEach {
 //            keyStroker.strokeKeys(it.modifiers, it.key)
 //            eventConsole.log("Shortcut fired: " + it.shortcutString)
 //        }
-//    }
-//
-//    @EventSubscriber
-//    fun handleChannelPointsRedemption(event: ChannelPointsRedemptionEvent) {
-//        val title = event.redemption.reward.title
-//        eventConsole.log("Channel Points Redemption Event - User: " + event.redemption.user.displayName + ", Title: $title")
+    }
+
+    @EventSubscriber
+    fun handleChannelPointsRedemption(event: ChannelPointsRedemptionEvent) {
+        val title = event.redemption.reward.title
+        eventConsole.log("Channel Points Redemption Event - User: " + event.redemption.user.displayName + ", Title: $title")
 //        model.channelPointsShortcuts.filter { it.title == title }.forEach {
 //            keyStroker.strokeKeys(it.modifiers, it.key)
 //            eventConsole.log("Shortcut fired: " + it.shortcutString)
 //        }
-//    }
-//
-//    @EventSubscriber
-//    fun handleCheer(event: CheerEvent) {
-//        eventConsole.log("Cheer Event - User: " + event.user.name + ", Bits: " + event.bits)
+    }
+
+    @EventSubscriber
+    fun handleCheer(event: ChannelBitsEvent) {
+        eventConsole.log("Cheer Event - User: " + event.data.userName + ", Bits: " + event.data.bitsUsed)
 //        var previous: Shortcut? = null
 //        model.cheerShortcuts.forEach {
 //            if (event.bits < it.bits) {
@@ -121,14 +129,14 @@ class MainController : Controller() {
 //
 //        // The value is higher than the last value in the list
 //        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//    }
-//
-//    @EventSubscriber
-//    fun handleSubscription(event: SubscriptionEvent) {
-//        if (event.gifted) {
+    }
+
+    @EventSubscriber
+    fun handleSubscription(event: ChannelSubscribeEvent) {
+//        if (event.data.context) {
 //            return // Handle these elsewhere
 //        }
-//        eventConsole.log("Subscription Event - User: " + event.user.name + ", Months: " + event.months)
+        eventConsole.log("Subscription Event - User: " + event.data.userName + ", Months: " + event.data.cumulativeMonths)
 //        var previous: Shortcut? = null
 //        model.subscriptionShortcuts.forEach {
 //            if (event.months < it.months) {
@@ -140,11 +148,11 @@ class MainController : Controller() {
 //
 //        // The value is higher than the last value in the list
 //        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//    }
-//
-//    @EventSubscriber
-//    fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
-//        eventConsole.log("Gift Subscriptions Event - User: " + event.user.name + ", Count: " + event.count)
+    }
+
+    @EventSubscriber
+    fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
+        eventConsole.log("Gift Subscriptions Event - User: " + event.user.name + ", Count: " + event.count)
 //        var previous: Shortcut? = null
 //        model.giftSubscriptionShortcuts.forEach {
 //            if (event.count < it.count) {
@@ -156,5 +164,5 @@ class MainController : Controller() {
 //
 //        // The value is higher than the last value in the list
 //        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//    }
+    }
 }
