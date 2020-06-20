@@ -10,6 +10,6 @@ class EventConsole {
     val events = FXCollections.observableArrayList<ConsoleEvent>()
 
     fun log(message: String) {
-        events.add(ConsoleEvent(LocalDateTime.now(), message))
+        events.add(0, ConsoleEvent(LocalDateTime.now(), message))
     }
 }
