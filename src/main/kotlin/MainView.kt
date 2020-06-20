@@ -1,5 +1,6 @@
 import javafx.beans.binding.When
 import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Orientation
@@ -40,8 +41,7 @@ class MainView : View() {
                         textfield().bind(controller.oauthTokenProperty)
                         button("Get") {
                             action {
-                                Desktop.getDesktop()
-                                    .browse(URI.create("https://twitchtokengenerator.com/quick/dTzb2hfaP5"))
+                                Desktop.getDesktop().browse(URI.create("https://twitchtokengenerator.com/quick/dTzb2hfaP5"))
                             }
                         }
                     }
@@ -50,6 +50,23 @@ class MainView : View() {
                             action { controller.start() }
                         }
                         label().bind(controller.errorTextProperty)
+                    }
+                }
+            }
+            spacer()
+            form {
+                disableProperty().bind(When(controller.startedProperty).then(false).otherwise(true))
+                fieldset("Test Events", labelPosition = Orientation.VERTICAL) {
+                    val selectedTestEventType = SimpleObjectProperty<TestEventType>(TestEventType.follow)
+                    val valueProperty = SimpleStringProperty("")
+                    combobox(selectedTestEventType, TestEventType.values().toList())
+                    field("Event Value") {
+                        textfield().bind(valueProperty)
+                    }
+                    button("Send Test Event") {
+                        action {
+                            controller.sendTestEvent(selectedTestEventType.value, valueProperty.value)
+                        }
                     }
                 }
             }

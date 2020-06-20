@@ -5,6 +5,10 @@ import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
 import com.github.twitch4j.chat.events.channel.FollowEvent
 import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
+import com.github.twitch4j.common.events.domain.EventChannel
+import com.github.twitch4j.common.events.domain.EventUser
+import com.github.twitch4j.pubsub.domain.*
+import com.github.twitch4j.pubsub.enums.SubscriptionType
 import com.github.twitch4j.pubsub.events.ChannelBitsEvent
 import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent
@@ -16,12 +20,16 @@ import tornadofx.Controller
 import tornadofx.getValue
 import tornadofx.observableListOf
 import tornadofx.setValue
+import java.util.*
 
 class MainController : Controller() {
     private val model = Model.load()
     private var twitchClient: TwitchClient? = null
     val eventConsole = EventConsole()
     private val keyStroker = KeyStroker(eventConsole)
+
+    var testChannel: EventChannel? = null
+    val testUser = EventUser("TEST", "TEST")
 
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
@@ -58,8 +66,8 @@ class MainController : Controller() {
             return
         }
 
-        // Strip "oauth:" from entered string to show the user that it happened
-        oauthToken = oauthToken
+        // Create EventChannel for test events
+        testChannel = EventChannel(channelId, channelName)
 
         // Save the channelName and oauthToken
         model.channelName = channelName
@@ -150,12 +158,17 @@ class MainController : Controller() {
 
     @EventSubscriber
     fun handleSubscription(event: ChannelSubscribeEvent) {
-        // TODO: Distinguish gifted and normal subs
-//        if (event.data.context) {
-//            return // Handle these elsewhere
-//        }
+        if (event.data.context == SubscriptionType.SUB_GIFT || event.data.context == SubscriptionType.ANON_SUB_GIFT) {
+            return // Handle these elsewhere
+        }
         eventConsole.log("Subscription Event - User: " + event.data.userName + ", Months: " + event.data.cumulativeMonths)
         fireIntValueShortcuts(event.data.cumulativeMonths, model.subscriptionShortcuts)
+    }
+
+    @EventSubscriber
+    fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
+        eventConsole.log("Gift Subscription Event - User: " + event.user.name + ", Months: " + event.count)
+        fireIntValueShortcuts(event.count, model.giftSubscriptionShortcuts)
     }
 
     private fun fireIntValueShortcuts(eventValue: Int, shortcuts: List<MetaShortcut>) {
@@ -179,5 +192,46 @@ class MainController : Controller() {
         if (!fired.contains(previous)) {
             keyStroker.strokeKeys(previous ?: return)
         }
+    }
+
+    fun sendTestEvent(type: TestEventType, value: String) {
+        val testEvent = when (type) {
+            TestEventType.follow -> FollowEvent(testChannel, testUser)
+            TestEventType.channelPoints -> {
+                val redemption = ChannelPointsRedemption()
+                redemption.reward = ChannelPointsReward()
+                redemption.reward.title = value
+                redemption.user = ChannelPointsUser()
+                redemption.user.displayName = testUser.name
+                ChannelPointsRedemptionEvent(Calendar.getInstance(), redemption)
+            }
+            TestEventType.bits -> {
+                val data = ChannelBitsData()
+                data.userName = testUser.name
+                data.bitsUsed = value.toIntOrNull() ?: return
+                ChannelBitsEvent(data)
+            }
+            TestEventType.subscription -> {
+                val data = SubscriptionData()
+                data.userName = testUser.name
+                data.cumulativeMonths = value.toIntOrNull() ?: return
+                ChannelSubscribeEvent(data)
+            }
+            TestEventType.giftSubscription -> GiftSubscriptionsEvent(testChannel, testUser, "", value.toIntOrNull() ?: return, -1)
+        }
+
+        twitchClient?.eventManager?.publish(testEvent)
+    }
+}
+
+enum class TestEventType(val eventName: String) {
+    follow("Follow"),
+    channelPoints("Channel Points"),
+    bits("Bits"),
+    subscription("Subscription"),
+    giftSubscription("Gift Subscription");
+
+    override fun toString(): String {
+        return eventName
     }
 }
