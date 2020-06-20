@@ -51,6 +51,7 @@ class MainController : Controller() {
             .withEnableHelix(true)
             .withEnablePubSub(true)
             .withEnableChat(true)
+            .withChatAccount(credential)
             .withDefaultAuthToken(credential)
             .build()
 
