@@ -18,11 +18,10 @@ import tornadofx.observableListOf
 import tornadofx.setValue
 
 class MainController : Controller() {
-    val model = Model.load()
-    val keyStroker = KeyStroker()
-    var twitchClient: TwitchClient? = null
-
+    private val model = Model.load()
+    private var twitchClient: TwitchClient? = null
     val eventConsole = EventConsole()
+    private val keyStroker = KeyStroker(eventConsole)
 
     val channelNameProperty = SimpleStringProperty(model.channelName)
     private var channelName by channelNameProperty
@@ -129,70 +128,55 @@ class MainController : Controller() {
     @EventSubscriber
     fun handleFollow(event: FollowEvent) {
         eventConsole.log("Follow Event - User: " + event.user.name)
-//        model.followShortcuts.forEach {
-//            keyStroker.strokeKeys(it.modifiers, it.key)
-//            eventConsole.log("Shortcut fired: " + it.shortcutString)
-//        }
+        model.followShortcuts.forEach {
+            keyStroker.strokeKeys(it)
+        }
     }
 
     @EventSubscriber
     fun handleChannelPointsRedemption(event: ChannelPointsRedemptionEvent) {
         val title = event.redemption.reward.title
         eventConsole.log("Channel Points Redemption Event - User: " + event.redemption.user.displayName + ", Title: $title")
-//        model.channelPointsShortcuts.filter { it.title == title }.forEach {
-//            keyStroker.strokeKeys(it.modifiers, it.key)
-//            eventConsole.log("Shortcut fired: " + it.shortcutString)
-//        }
+        model.channelPointsShortcuts.filter { it.title == title }.forEach {
+            keyStroker.strokeKeys(it)
+        }
     }
 
     @EventSubscriber
-    fun handleCheer(event: ChannelBitsEvent) {
-        eventConsole.log("Cheer Event - User: " + event.data.userName + ", Bits: " + event.data.bitsUsed)
-//        var previous: Shortcut? = null
-//        model.cheerShortcuts.forEach {
-//            if (event.bits < it.bits) {
-//                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//                return
-//            }
-//            previous = it
-//        }
-//
-//        // The value is higher than the last value in the list
-//        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+    fun handleBits(event: ChannelBitsEvent) {
+        eventConsole.log("Bits Event - User: " + event.data.userName + ", Bits: " + event.data.bitsUsed)
+        fireIntValueShortcuts(event.data.bitsUsed, model.bitsShortcuts)
     }
 
     @EventSubscriber
     fun handleSubscription(event: ChannelSubscribeEvent) {
+        // TODO: Distinguish gifted and normal subs
 //        if (event.data.context) {
 //            return // Handle these elsewhere
 //        }
         eventConsole.log("Subscription Event - User: " + event.data.userName + ", Months: " + event.data.cumulativeMonths)
-//        var previous: Shortcut? = null
-//        model.subscriptionShortcuts.forEach {
-//            if (event.months < it.months) {
-//                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//                return
-//            }
-//            previous = it
-//        }
-//
-//        // The value is higher than the last value in the list
-//        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+        fireIntValueShortcuts(event.data.cumulativeMonths, model.subscriptionShortcuts)
     }
 
-    @EventSubscriber
-    fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
-        eventConsole.log("Gift Subscriptions Event - User: " + event.user.name + ", Count: " + event.count)
-//        var previous: Shortcut? = null
-//        model.giftSubscriptionShortcuts.forEach {
-//            if (event.count < it.count) {
-//                keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
-//                return
-//            }
-//            previous = it
-//        }
-//
-//        // The value is higher than the last value in the list
-//        keyStroker.strokeKeys(previous?.modifiers ?: return, previous?.key ?: return)
+    private fun fireIntValueShortcuts(eventValue: Int, shortcuts: List<MetaShortcut>) {
+        var previous: MetaShortcut? = null
+        val fired = mutableListOf<MetaShortcut>()
+        shortcuts.forEach {
+            if (it.alwaysFire) {
+                keyStroker.strokeKeys(it)
+                fired.add(it)
+            } else if (eventValue < it.valueInt) {
+                if (!fired.contains(previous)) {
+                    keyStroker.strokeKeys(previous ?: return)
+                }
+                return
+            }
+            previous = it
+        }
+
+        // The value is higher than the last value in the list
+        if (!fired.contains(previous)) {
+            keyStroker.strokeKeys(previous ?: return)
+        }
     }
 }

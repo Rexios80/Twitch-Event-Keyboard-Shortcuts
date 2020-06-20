@@ -101,28 +101,13 @@ class MainView : View() {
             fieldset(title, labelPosition = Orientation.VERTICAL) {
                 hbox(alignment = Pos.BOTTOM_LEFT) {
                     field(valueLabel ?: "spacer") {
-                        if (!hasValue) {
-                            isVisible = false
-                        }
+                        isVisible = hasValue
                         textfield {
                             prefWidth = 140.0
                             bind(valueProperty)
                         }
                     }
                     add(betterSpacer(20.0))
-                    field("Wait Time (Milliseconds)") {
-                        textfield {
-                            prefWidth = 140.0
-                            bind(waitTimeProperty)
-                        }
-                    }
-                    add(betterSpacer(20.0))
-                    checkbox("Always fire") {
-                        paddingBottom = 10
-                        bind(alwaysFireProperty)
-                    }
-                }
-                hbox {
                     field("Shortcut On Event") {
                         textfield {
                             prefWidth = 140.0
@@ -130,6 +115,20 @@ class MainView : View() {
                             isEditable = false
                             addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
                             addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                        }
+                    }
+                    add(betterSpacer(20.0))
+                    checkbox("Always fire") {
+                        isVisible = hasValue && clazz != ChannelPointsShortcut::class.java
+                        paddingBottom = 10
+                        bind(alwaysFireProperty)
+                    }
+                }
+                hbox {
+                    field("Wait Time (Milliseconds)") {
+                        textfield {
+                            prefWidth = 140.0
+                            bind(waitTimeProperty)
                         }
                     }
                     add(betterSpacer(20.0))
@@ -165,11 +164,13 @@ class MainView : View() {
                                 isSortable = false
                                 isResizable = false
                             }
-                        }
-                        readonlyColumn("AF", MetaShortcut::alwaysFireString) {
-                            prefWidth = 30.0
-                            isSortable = false
-                            isResizable = false
+                            if (clazz != ChannelPointsShortcut::class.java) {
+                                readonlyColumn("AF", MetaShortcut::alwaysFireString) {
+                                    prefWidth = 30.0
+                                    isSortable = false
+                                    isResizable = false
+                                }
+                            }
                         }
                         readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
                             prefWidth = 140.0

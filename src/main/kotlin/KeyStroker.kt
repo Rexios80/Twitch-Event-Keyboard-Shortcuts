@@ -1,10 +1,24 @@
 import javafx.scene.input.KeyCode
 import java.awt.Robot
 
-class KeyStroker {
+class KeyStroker(private val console: EventConsole) {
     private val robot = Robot()
 
-    fun strokeKeys(shortcut: Shortcut) {
+    fun strokeKeys(shortcut: MetaShortcut) {
+        stroke(shortcut.shortcutOnEvent)
+
+        if (shortcut.waitTime != null) {
+            Thread {
+                console.log("Waiting " + shortcut.waitTimeString + "ms")
+                Thread.sleep(shortcut.waitTime)
+                stroke(shortcut.shortcutAfterWait)
+            }.start()
+        }
+    }
+
+    private fun stroke(shortcut: Shortcut?) {
+        shortcut ?: return
+
         val field = KeyCode::class.java.getDeclaredField("code")
         field.isAccessible = true
 
@@ -19,5 +33,7 @@ class KeyStroker {
         modifierCodes.forEach {
             robot.keyRelease(it)
         }
+
+        console.log("Shortcut Fired: " + shortcut.createShortcutString())
     }
 }
