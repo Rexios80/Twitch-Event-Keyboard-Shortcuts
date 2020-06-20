@@ -167,7 +167,7 @@ class MainController : Controller() {
 
     @EventSubscriber
     fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
-        eventConsole.log("Gift Subscription Event - User: " + event.user.name + ", Months: " + event.count)
+        eventConsole.log("Gift Subscription Event - User: " + event.user.name + ", Count: " + event.count)
         fireIntValueShortcuts(event.count, model.giftSubscriptionShortcuts)
     }
 

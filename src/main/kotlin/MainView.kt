@@ -11,6 +11,7 @@ import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
+import javafx.scene.text.Font
 import tornadofx.*
 import java.awt.Desktop
 import java.net.URI
@@ -32,8 +33,8 @@ class MainView : View() {
         hbox {
             form {
                 minWidth = 350.0
+                disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                 fieldset("Authentication", labelPosition = Orientation.VERTICAL) {
-                    disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
                     field("Channel Name") {
                         textfield().bind(controller.channelNameProperty)
                     }
@@ -45,12 +46,19 @@ class MainView : View() {
                             }
                         }
                     }
-                    field {
-                        button("Start") {
-                            action { controller.start() }
-                        }
-                        label().bind(controller.errorTextProperty)
-                    }
+                }
+            }
+            vbox(alignment = Pos.CENTER) {
+                paddingLeft = 50.0
+                button("Start") {
+                    disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
+                    setPrefSize(200.0, 100.0)
+                    font = Font.font(30.0)
+                    action { controller.start() }
+                }
+                label {
+                    paddingTop = 10.0
+                    bind(controller.errorTextProperty)
                 }
             }
             spacer()
