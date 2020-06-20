@@ -58,7 +58,7 @@ class MainController : Controller() {
             val resultList = twitchClient!!.helix.getUsers(oauthToken, null, listOf(channelName)).execute()
             resultList.users.find { it.displayName == channelName }!!.id
         } catch (e: HystrixRuntimeException) {
-            errorText = "Channel not found"
+            errorText = "Invalid OAuth token"
             eventConsole.log("Error starting: $errorText")
             return
         } catch (e: NullPointerException) {
