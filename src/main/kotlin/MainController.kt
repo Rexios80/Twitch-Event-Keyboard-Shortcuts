@@ -50,6 +50,7 @@ class MainController : Controller() {
         twitchClient = TwitchClientBuilder.builder()
             .withEnableHelix(true)
             .withEnablePubSub(true)
+            .withEnableChat(true)
             .withDefaultAuthToken(credential)
             .build()
 
@@ -80,6 +81,7 @@ class MainController : Controller() {
         twitchClient?.pubSub?.listenForChannelPointsRedemptionEvents(credential, channelId)
         twitchClient?.pubSub?.listenForCheerEvents(credential, channelId)
         twitchClient?.pubSub?.listenForSubscriptionEvents(credential, channelId)
+        twitchClient?.chat?.joinChannel(channelName)
 
         started = true
         eventConsole.log("Started!")
