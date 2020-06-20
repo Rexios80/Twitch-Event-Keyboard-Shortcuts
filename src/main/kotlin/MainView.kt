@@ -137,15 +137,18 @@ class MainView : View() {
                             addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
                         }
                     }
-                }
-                field {
-                    button("Add") {
-                        minWidth = 75.0
-                        action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value.toLongOrNull(), shortcutAfterWait.copy(), alwaysFireProperty.value) }
-                    }
-                    button("Delete") {
-                        minWidth = 75.0
-                        action { controller.removeShortcut(selectedShortcut) }
+                    add(betterSpacer(20.0))
+                    hbox(alignment = Pos.BOTTOM_LEFT) {
+                        paddingBottom = 5
+                        button("Add") {
+                            minWidth = 75.0
+                            action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value.toLongOrNull(), shortcutAfterWait.copy(), alwaysFireProperty.value) }
+                        }
+                        add(betterSpacer(10.0))
+                        button("Delete") {
+                            minWidth = 75.0
+                            action { controller.removeShortcut(selectedShortcut) }
+                        }
                     }
                 }
                 field {
