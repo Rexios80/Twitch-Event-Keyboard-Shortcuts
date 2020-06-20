@@ -153,6 +153,7 @@ class MainView : View() {
                 }
                 field {
                     tableview(controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>) {
+                        prefHeight = 200.0
                         if (hasValue) {
                             readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
                                 prefWidth = 75.0
@@ -160,7 +161,8 @@ class MainView : View() {
                                 isResizable = false
                             }
                         }
-                        readonlyColumn("Always Fire", MetaShortcut::alwaysFireString) {
+                        readonlyColumn("AF", MetaShortcut::alwaysFireString) {
+                            prefWidth = 30.0
                             isSortable = false
                             isResizable = false
                         }

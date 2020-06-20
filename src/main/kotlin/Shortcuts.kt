@@ -21,16 +21,30 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
         if (modifiers.contains(KeyCode.SHIFT)) {
             keysPressed.add("⇧")
         }
-        val keyName = when (key) {
-            KeyCode.BACK_SPACE -> "←"
-            KeyCode.ENTER -> "↵"
-            KeyCode.TAB -> "⇥"
-            else -> {
-                val name = key?.name ?: ""
-                if (name.length >= 3) {
-                    name.substring(0, 3).toUpperCase()
-                } else {
-                    name
+        val keyName = if (key?.isKeypadKey == true) {
+            when (key) {
+                KeyCode.KP_UP -> "N↑"
+                KeyCode.KP_DOWN -> "N↓"
+                KeyCode.KP_LEFT -> "N←"
+                KeyCode.KP_RIGHT -> "N→"
+                else -> "N" + key?.getName()?.split(" ")?.get(1)
+            }
+        } else {
+            when (key) {
+                KeyCode.BACK_SPACE -> "⇤"
+                KeyCode.ENTER -> "↵"
+                KeyCode.TAB -> "⇥"
+                KeyCode.UP -> "↑"
+                KeyCode.DOWN -> "↓"
+                KeyCode.LEFT -> "←"
+                KeyCode.RIGHT -> "→"
+                else -> {
+                    val name = key?.getName() ?: ""
+                    if (name.length >= 3) {
+                        name.substring(0, 3).toUpperCase()
+                    } else {
+                        name
+                    }
                 }
             }
         }
