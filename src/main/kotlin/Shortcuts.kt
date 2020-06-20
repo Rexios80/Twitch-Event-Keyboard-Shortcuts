@@ -7,22 +7,34 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
     fun createShortcutString(): String {
         val keysPressed = mutableListOf<String>()
         if (modifiers.contains(KeyCode.COMMAND)) {
-            keysPressed.add("Cmd")
+            keysPressed.add("⌘")
         }
         if (modifiers.contains(KeyCode.WINDOWS)) {
-            keysPressed.add("Win")
+            keysPressed.add("⊞")
         }
         if (modifiers.contains(KeyCode.CONTROL)) {
-            keysPressed.add("Ctrl")
+            keysPressed.add("^")
         }
         if (modifiers.contains(KeyCode.ALT)) {
-            keysPressed.add("Alt")
+            keysPressed.add("⎇")
         }
         if (modifiers.contains(KeyCode.SHIFT)) {
-            keysPressed.add("Shift")
+            keysPressed.add("⇧")
         }
-        val keyName = key?.name ?: ""
-        keysPressed.add(keyName.split("_").joinToString(" ") { it.toLowerCase().capitalize() })
+        val keyName = when (key) {
+            KeyCode.BACK_SPACE -> "←"
+            KeyCode.ENTER -> "↵"
+            KeyCode.TAB -> "⇥"
+            else -> {
+                val name = key?.name ?: ""
+                if (name.length >= 2) {
+                    name.substring(0, 2).toUpperCase()
+                } else {
+                    name
+                }
+            }
+        }
+        keysPressed.add(keyName)
 
         return keysPressed.joinToString(" + ")
     }
