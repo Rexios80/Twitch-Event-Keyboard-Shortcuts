@@ -82,11 +82,14 @@ class MainController : Controller() {
         return when (clazz) {
             FollowShortcut::class.java -> model.followShortcuts as ObservableList<T>
             ChannelPointsShortcut::class.java -> model.channelPointsShortcuts as ObservableList<T>
+            BitsShortcut::class.java -> model.bitsShortcuts as ObservableList<T>
+            SubscriptionShortcut::class.java -> model.subscriptionShortcuts as ObservableList<T>
+            GiftSubscriptionShortcut::class.java -> model.giftSubscriptionShortcuts as ObservableList<T>
             else -> observableListOf() // Should never get here
         }
     }
 
-    fun <T> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
+    fun <T : MetaShortcut> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
         if (shortcutOnEvent.key == null) return
         if (waitTime != null && shortcutAfterWait.key == null) return
 
@@ -96,13 +99,31 @@ class MainController : Controller() {
                 if (value.isEmpty()) return
                 model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
             }
+            BitsShortcut::class.java -> {
+                val bits = value.toIntOrNull() ?: return
+                model.bitsShortcuts.add(BitsShortcut(bits, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            }
+            SubscriptionShortcut::class.java -> {
+                val months = value.toIntOrNull() ?: return
+                model.subscriptionShortcuts.add(SubscriptionShortcut(months, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            }
+            GiftSubscriptionShortcut::class.java -> {
+                val count = value.toIntOrNull() ?: return
+                model.giftSubscriptionShortcuts.add(GiftSubscriptionShortcut(count, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            }
         }
 
         model.save()
     }
 
-    fun <T : MetaShortcut> removeShortcut(shortcut: MetaShortcut) {
-
+    fun removeShortcut(shortcut: MetaShortcut?) {
+        when (shortcut) {
+            is FollowShortcut -> model.followShortcuts.remove(shortcut)
+            is ChannelPointsShortcut -> model.channelPointsShortcuts.remove(shortcut)
+            is BitsShortcut -> model.bitsShortcuts.remove(shortcut)
+            is SubscriptionShortcut -> model.subscriptionShortcuts.remove(shortcut)
+            is GiftSubscriptionShortcut -> model.giftSubscriptionShortcuts.remove(shortcut)
+        }
     }
 
     @EventSubscriber

@@ -7,7 +7,7 @@ class Model : Serializable {
     var oauthToken = ""
     var followShortcuts = FXCollections.observableArrayList<FollowShortcut>()
     var channelPointsShortcuts = FXCollections.observableArrayList<ChannelPointsShortcut>()
-    var cheerShortcuts = FXCollections.observableArrayList<BitsShortcut>()
+    var bitsShortcuts = FXCollections.observableArrayList<BitsShortcut>()
     var subscriptionShortcuts = FXCollections.observableArrayList<SubscriptionShortcut>()
     var giftSubscriptionShortcuts = FXCollections.observableArrayList<GiftSubscriptionShortcut>()
 
@@ -29,7 +29,7 @@ class Model : Serializable {
     fun save() {
         // Auto sort lists
         channelPointsShortcuts.sortBy { it.title.toLowerCase() }
-        cheerShortcuts.sortBy { it.bits }
+        bitsShortcuts.sortBy { it.bits }
         subscriptionShortcuts.sortBy { it.months }
         giftSubscriptionShortcuts.sortBy { it.count }
 
@@ -41,7 +41,7 @@ class Model : Serializable {
         oos.writeUTF(oauthToken)
         oos.writeObject(followShortcuts.toList())
         oos.writeObject(channelPointsShortcuts.toList())
-        oos.writeObject(cheerShortcuts.toList())
+        oos.writeObject(bitsShortcuts.toList())
         oos.writeObject(subscriptionShortcuts.toList())
         oos.writeObject(giftSubscriptionShortcuts.toList())
     }
@@ -54,7 +54,7 @@ class Model : Serializable {
         try {
             followShortcuts = FXCollections.observableArrayList(ois.readObject() as List<FollowShortcut>)
             channelPointsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChannelPointsShortcut>)
-            cheerShortcuts = FXCollections.observableArrayList(ois.readObject() as List<BitsShortcut>)
+            bitsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<BitsShortcut>)
             subscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<SubscriptionShortcut>)
             giftSubscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<GiftSubscriptionShortcut>)
         } catch (e: ClassCastException) {

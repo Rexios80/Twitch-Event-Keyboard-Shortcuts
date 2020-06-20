@@ -1,6 +1,5 @@
 import javafx.beans.binding.When
 import javafx.beans.property.SimpleBooleanProperty
-import javafx.beans.property.SimpleLongProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Orientation
@@ -69,6 +68,9 @@ class MainView : View() {
         hbox {
             add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
             add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
+            add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits"))
+            add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
+            add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
         }
     }
 
@@ -121,7 +123,7 @@ class MainView : View() {
                     }
                     button("Delete") {
                         minWidth = 75.0
-//                        action { controller.removeFollowShortcut(selectedFollowShortcut) }
+                        action { controller.removeShortcut(selectedShortcut) }
                     }
                 }
                 field {
