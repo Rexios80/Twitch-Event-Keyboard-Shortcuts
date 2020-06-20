@@ -1,5 +1,7 @@
 import javafx.scene.input.KeyCode
 import java.io.Serializable
+import java.text.NumberFormat
+import java.util.*
 
 data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Serializable {
     fun createShortcutString(): String {
@@ -29,6 +31,8 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
 abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean) : Serializable {
     val shortcutOnEventString: String get() = shortcutOnEvent.createShortcutString()
     val shortcutAfterWaitString: String get() = shortcutAfterWait?.createShortcutString() ?: ""
+    val waitTimeString: String get() = if (waitTime == null) "" else NumberFormat.getNumberInstance(Locale.US).format(waitTime)
+    val alwaysFireString: String get() = if (alwaysFire) "✓" else ""
 
     abstract val valueString: String?
 }
@@ -42,7 +46,7 @@ class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTi
 }
 
 class BitsShortcut(val bits: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
-    override val valueString: String? get() = bits.toString()
+    override val valueString: String? get() = NumberFormat.getNumberInstance(Locale.US).format(bits)
 }
 
 class SubscriptionShortcut(val months: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {

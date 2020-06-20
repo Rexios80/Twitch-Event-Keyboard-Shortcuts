@@ -135,8 +135,21 @@ class MainView : View() {
                                 isResizable = false
                             }
                         }
+                        readonlyColumn("Always Fire", MetaShortcut::alwaysFireString) {
+                            isSortable = false
+                            isResizable = false
+                        }
                         readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
-                            prefWidth = 250.0
+                            prefWidth = 225.0
+                            isSortable = false
+                            isResizable = false
+                        }
+                        readonlyColumn("Wait Time", MetaShortcut::waitTimeString) {
+                            isSortable = false
+                            isResizable = false
+                        }
+                        readonlyColumn("Shortcut After Wait", MetaShortcut::shortcutAfterWaitString) {
+                            prefWidth = 225.0
                             isSortable = false
                             isResizable = false
                         }
