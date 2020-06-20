@@ -162,19 +162,20 @@ class MainController : Controller() {
         var previous: MetaShortcut? = null
         val fired = mutableListOf<MetaShortcut>()
         shortcuts.forEach {
-            if (it.alwaysFire) {
-                keyStroker.strokeKeys(it)
-                fired.add(it)
-            } else if (eventValue < it.valueInt) {
+            if (eventValue < it.valueInt) {
                 if (!fired.contains(previous)) {
                     keyStroker.strokeKeys(previous ?: return)
                 }
                 return
             }
+            if (it.alwaysFire) {
+                keyStroker.strokeKeys(it)
+                fired.add(it)
+            }
             previous = it
         }
 
-        // The value is higher than the last value in the list
+        // The value is greater than or equal to the last value in the list
         if (!fired.contains(previous)) {
             keyStroker.strokeKeys(previous ?: return)
         }
