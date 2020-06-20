@@ -27,8 +27,8 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
             KeyCode.TAB -> "⇥"
             else -> {
                 val name = key?.name ?: ""
-                if (name.length >= 2) {
-                    name.substring(0, 2).toUpperCase()
+                if (name.length >= 3) {
+                    name.substring(0, 3).toUpperCase()
                 } else {
                     name
                 }

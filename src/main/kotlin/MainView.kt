@@ -100,14 +100,14 @@ class MainView : View() {
                             isVisible = false
                         }
                         textfield {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             bind(valueProperty)
                         }
                     }
                     add(betterSpacer(20.0))
                     field("Wait Time (Milliseconds)") {
                         textfield {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             bind(waitTimeProperty)
                         }
                     }
@@ -120,7 +120,7 @@ class MainView : View() {
                 hbox {
                     field("Shortcut On Event") {
                         textfield {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             bind(shortcutOnEventString)
                             isEditable = false
                             addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
@@ -130,7 +130,7 @@ class MainView : View() {
                     add(betterSpacer(20.0))
                     field("Shortcut After Wait") {
                         textfield {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             bind(shortcutAfterWaitString)
                             isEditable = false
                             addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
@@ -165,7 +165,7 @@ class MainView : View() {
                             isResizable = false
                         }
                         readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             isSortable = false
                             isResizable = false
                         }
@@ -174,7 +174,7 @@ class MainView : View() {
                             isResizable = false
                         }
                         readonlyColumn("Shortcut After Wait", MetaShortcut::shortcutAfterWaitString) {
-                            prefWidth = 225.0
+                            prefWidth = 140.0
                             isSortable = false
                             isResizable = false
                         }
