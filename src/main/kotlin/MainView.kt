@@ -53,30 +53,35 @@ class MainView : View() {
                     }
                 }
             }
-            form {
-                fitToParentWidth()
-                fieldset("Event Console") {
-                    tableview(controller.eventConsole.events) {
-                        smartResize()
-                        readonlyColumn("Time", ConsoleEvent::timeString) {
-                            minWidth = 100.0
-                            isSortable = false
-                            isResizable = false
-                        }
-                        readonlyColumn("Event", ConsoleEvent::message) {
-                            isSortable = false
-                            isResizable = false
+        }
+        vbox {
+            hbox {
+                add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
+                add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
+                add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits"))
+            }
+            hbox {
+                add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
+                add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
+                form {
+                    fieldset("Event Console") {
+                        tableview(controller.eventConsole.events) {
+                            prefWidth = 480.0
+                            prefHeight = 320.0
+                            smartResize()
+                            readonlyColumn("Time", ConsoleEvent::timeString) {
+                                minWidth = 100.0
+                                isSortable = false
+                                isResizable = false
+                            }
+                            readonlyColumn("Event", ConsoleEvent::message) {
+                                isSortable = false
+                                isResizable = false
+                            }
                         }
                     }
                 }
             }
-        }
-        hbox {
-            add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
-            add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
-            add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits"))
-//            add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
-//            add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
         }
     }
 
