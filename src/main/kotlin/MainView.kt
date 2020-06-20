@@ -3,7 +3,13 @@ import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Orientation
+import javafx.geometry.Pos
+import javafx.scene.Node
 import javafx.scene.input.KeyEvent
+import javafx.scene.layout.HBox
+import javafx.scene.layout.Priority
+import javafx.scene.layout.Region
+import javafx.scene.layout.VBox
 import tornadofx.*
 import java.awt.Desktop
 import java.net.URI
@@ -69,8 +75,8 @@ class MainView : View() {
             add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
             add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
             add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits"))
-            add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
-            add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
+//            add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
+//            add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
         }
     }
 
@@ -88,33 +94,49 @@ class MainView : View() {
 
         override val root = form {
             fieldset(title, labelPosition = Orientation.VERTICAL) {
-                field(valueLabel ?: "spacer") {
-                    if (!hasValue) {
-                        isVisible = false
+                hbox(alignment = Pos.BOTTOM_LEFT) {
+                    field(valueLabel ?: "spacer") {
+                        if (!hasValue) {
+                            isVisible = false
+                        }
+                        textfield {
+                            prefWidth = 225.0
+                            bind(valueProperty)
+                        }
                     }
-                    textfield().bind(valueProperty)
-                }
-                field("Shortcut On Event") {
-                    textfield {
-                        bind(shortcutOnEventString)
-                        isEditable = false
-                        addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
-                        addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                    add(betterSpacer(20.0))
+                    field("Wait Time (Milliseconds)") {
+                        textfield {
+                            prefWidth = 225.0
+                            bind(waitTimeProperty)
+                        }
                     }
-                }
-                field("Wait Time (Milliseconds)") {
-                    textfield().bind(waitTimeProperty)
-                }
-                field("Shortcut After Wait") {
-                    textfield {
-                        bind(shortcutAfterWaitString)
-                        isEditable = false
-                        addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
-                        addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
+                    add(betterSpacer(20.0))
+                    checkbox("Always fire") {
+                        paddingBottom = 10
+                        bind(alwaysFireProperty)
                     }
                 }
-                field {
-                    checkbox("Always fire").bind(alwaysFireProperty)
+                hbox {
+                    field("Shortcut On Event") {
+                        textfield {
+                            prefWidth = 225.0
+                            bind(shortcutOnEventString)
+                            isEditable = false
+                            addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                            addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                        }
+                    }
+                    add(betterSpacer(20.0))
+                    field("Shortcut After Wait") {
+                        textfield {
+                            prefWidth = 225.0
+                            bind(shortcutAfterWaitString)
+                            isEditable = false
+                            addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
+                            addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
+                        }
+                    }
                 }
                 field {
                     button("Add") {
@@ -159,6 +181,20 @@ class MainView : View() {
                     }
                 }
             }
+        }
+
+        private fun betterSpacer(width: Double? = null, height: Double? = null): Node {
+            val spacer = Region()
+
+            if (width == null && height == null) {
+                // Make it always grow or shrink according to the available space
+                VBox.setVgrow(spacer, Priority.ALWAYS)
+                HBox.setHgrow(spacer, Priority.ALWAYS)
+            } else {
+                spacer.prefWidth = width ?: 0.0
+                spacer.prefHeight = height ?: 0.0
+            }
+            return spacer
         }
 
         private fun handleKeyPress(event: KeyEvent, shortcut: Shortcut, property: SimpleStringProperty) {
