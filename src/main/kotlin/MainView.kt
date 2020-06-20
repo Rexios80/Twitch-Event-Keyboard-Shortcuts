@@ -42,7 +42,7 @@ class MainView : View() {
                         textfield().bind(controller.oauthTokenProperty)
                         button("Get") {
                             action {
-                                Desktop.getDesktop().browse(URI.create("https://twitchtokengenerator.com/quick/dTzb2hfaP5"))
+                                Desktop.getDesktop().browse(URI.create("https://twitchtokengenerator.com/quick/fLWs7KID4A"))
                             }
                         }
                     }
