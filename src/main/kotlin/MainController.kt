@@ -3,10 +3,8 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler
 import com.github.philippheuer.events4j.simple.domain.EventSubscriber
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
-import com.github.twitch4j.chat.events.channel.CheerEvent
 import com.github.twitch4j.chat.events.channel.FollowEvent
 import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
-import com.github.twitch4j.chat.events.channel.SubscriptionEvent
 import com.github.twitch4j.pubsub.events.ChannelBitsEvent
 import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent
 import com.github.twitch4j.pubsub.events.ChannelSubscribeEvent
@@ -16,6 +14,7 @@ import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import tornadofx.Controller
 import tornadofx.getValue
+import tornadofx.observableListOf
 import tornadofx.setValue
 
 class MainController : Controller() {
@@ -79,14 +78,24 @@ class MainController : Controller() {
         eventConsole.log("Started!")
     }
 
-    fun <T : MetaShortcut> getShortcutsList(): ObservableList<T> {
-        return model.followShortcuts as ObservableList<T>
+    fun <T : MetaShortcut> getShortcutsList(clazz: Class<T>): ObservableList<T> {
+        return when (clazz) {
+            FollowShortcut::class.java -> model.followShortcuts as ObservableList<T>
+            ChannelPointsShortcut::class.java -> model.channelPointsShortcuts as ObservableList<T>
+            else -> observableListOf() // Should never get here
+        }
     }
 
-    fun <T> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
+    fun <T> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
+        if (shortcutOnEvent.key == null) return
+        if (waitTime != null && shortcutAfterWait.key == null) return
+
         when (clazz) {
             FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
-            ChannelPointsShortcut::class.java -> model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            ChannelPointsShortcut::class.java -> {
+                if (value.isEmpty()) return
+                model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            }
         }
 
         model.save()

@@ -26,9 +26,9 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
     }
 }
 
-abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut, val alwaysFire: Boolean) : Serializable {
+abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean) : Serializable {
     val shortcutOnEventString: String get() = shortcutOnEvent.createShortcutString()
-    val shortcutAfterWaitString: String get() = shortcutAfterWait.createShortcutString()
+    val shortcutAfterWaitString: String get() = shortcutAfterWait?.createShortcutString() ?: ""
 
     abstract val valueString: String?
 }
@@ -41,7 +41,7 @@ class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTi
     override val valueString: String? get() = title
 }
 
-class CheerShortcut(val bits: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class BitsShortcut(val bits: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
     override val valueString: String? get() = bits.toString()
 }
 

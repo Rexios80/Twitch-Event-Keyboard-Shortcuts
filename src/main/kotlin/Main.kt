@@ -75,7 +75,7 @@ class MainView : View() {
     class ShortcutsView<T : MetaShortcut>(clazz: Class<T>, controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null) : Fragment() {
         val valueProperty = SimpleStringProperty("")
         val shortcutOnEventString = SimpleStringProperty("")
-        val waitTimeProperty = SimpleLongProperty()
+        val waitTimeProperty = SimpleStringProperty("")
         val shortcutAfterWaitString = SimpleStringProperty("")
         val alwaysFireProperty = SimpleBooleanProperty(false)
 
@@ -117,8 +117,7 @@ class MainView : View() {
                 field {
                     button("Add") {
                         minWidth = 75.0
-                        // TODO: Clone shortcuts to prevent unintended editing
-                        action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value, shortcutAfterWait.copy(), alwaysFireProperty.value) }
+                        action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value.toLongOrNull(), shortcutAfterWait.copy(), alwaysFireProperty.value) }
                     }
                     button("Delete") {
                         minWidth = 75.0
@@ -126,7 +125,7 @@ class MainView : View() {
                     }
                 }
                 field {
-                    tableview(controller.getShortcutsList<T>() as ObservableList<MetaShortcut>) {
+                    tableview(controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>) {
                         if (hasValue) {
                             readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
                                 prefWidth = 75.0
@@ -149,7 +148,7 @@ class MainView : View() {
 
         private fun handleKeyPress(event: KeyEvent, shortcut: Shortcut, property: SimpleStringProperty) {
             if (event.eventType == KeyEvent.KEY_PRESSED) {
-                if (shortcut.modifiers.isEmpty() && shortcut.key != null) {
+                if (shortcut.key != null) {
                     // This is a new key combination
                     shortcut.modifiers.clear()
                     shortcut.key = null
