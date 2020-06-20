@@ -1,10 +1,9 @@
-import com.github.twitch4j.helix.domain.Follow
 import javafx.beans.binding.When
-import javafx.beans.property.*
+import javafx.beans.property.SimpleBooleanProperty
+import javafx.beans.property.SimpleLongProperty
+import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
 import javafx.geometry.Orientation
-import javafx.scene.control.TableColumn
-import javafx.scene.input.KeyCode
 import javafx.scene.input.KeyEvent
 import tornadofx.*
 import java.awt.Desktop
@@ -15,17 +14,6 @@ class TeksApp : App(MainView::class)
 
 class MainView : View() {
     private val controller = MainController()
-
-    private val rewardTitleProperty = SimpleStringProperty("")
-    private val bitsProperty = SimpleIntegerProperty(0)
-    private val monthsProperty = SimpleIntegerProperty(0)
-    private val countProperty = SimpleIntegerProperty(0)
-
-    private var selectedFollowShortcut: FollowShortcut? = null
-    private var selectedChannelPointsShortcut: ChannelPointsShortcut? = null
-    private var selectedCheerShortcut: CheerShortcut? = null
-    private var selectedSubscriptionShortcut: SubscriptionShortcut? = null
-    private var selectedGiftSubscriptionShortcut: GiftSubscriptionShortcut? = null
 
     override val root = vbox {
         style {
@@ -79,11 +67,12 @@ class MainView : View() {
             }
         }
         hbox {
-            add(ShortcutsView<FollowShortcut>(controller, "Follow Shortcuts"))
+            add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
+            add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
         }
     }
 
-    class ShortcutsView<T : MetaShortcut>(controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null, valueColumn: TableColumn<T, String>? = null) : Fragment() {
+    class ShortcutsView<T : MetaShortcut>(clazz: Class<T>, controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null) : Fragment() {
         val valueProperty = SimpleStringProperty("")
         val shortcutOnEventString = SimpleStringProperty("")
         val waitTimeProperty = SimpleLongProperty()
@@ -97,7 +86,7 @@ class MainView : View() {
 
         override val root = form {
             fieldset(title, labelPosition = Orientation.VERTICAL) {
-                field(valueLabel) {
+                field(valueLabel ?: "spacer") {
                     if (!hasValue) {
                         isVisible = false
                     }
@@ -129,7 +118,7 @@ class MainView : View() {
                     button("Add") {
                         minWidth = 75.0
                         // TODO: Clone shortcuts to prevent unintended editing
-                        action { controller.addShortcut<FollowShortcut>(valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value, shortcutAfterWait.copy(), alwaysFireProperty.value) }
+                        action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value, shortcutAfterWait.copy(), alwaysFireProperty.value) }
                     }
                     button("Delete") {
                         minWidth = 75.0
@@ -138,7 +127,13 @@ class MainView : View() {
                 }
                 field {
                     tableview(controller.getShortcutsList<T>() as ObservableList<MetaShortcut>) {
-                        valueColumn
+                        if (hasValue) {
+                            readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
+                                prefWidth = 75.0
+                                isSortable = false
+                                isResizable = false
+                            }
+                        }
                         readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
                             prefWidth = 250.0
                             isSortable = false

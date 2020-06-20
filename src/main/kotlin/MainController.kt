@@ -1,21 +1,11 @@
 import com.github.philippheuer.credentialmanager.domain.OAuth2Credential
 import com.github.philippheuer.events4j.simple.SimpleEventHandler
-import com.github.philippheuer.events4j.simple.domain.EventSubscriber
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
-import com.github.twitch4j.chat.events.channel.CheerEvent
-import com.github.twitch4j.chat.events.channel.FollowEvent
-import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
-import com.github.twitch4j.chat.events.channel.SubscriptionEvent
-import com.github.twitch4j.helix.domain.Follow
-import com.github.twitch4j.pubsub.events.ChannelPointsRedemptionEvent
 import com.netflix.hystrix.exception.HystrixRuntimeException
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
-import javafx.scene.input.KeyCode
-import javafx.scene.input.KeyEvent
-import okhttp3.internal.wait
 import tornadofx.Controller
 import tornadofx.getValue
 import tornadofx.setValue
@@ -85,13 +75,13 @@ class MainController : Controller() {
         return model.followShortcuts as ObservableList<T>
     }
 
-    inline fun <reified T : MetaShortcut> addShortcut(value: String, shortcutOnEvent: Shortcut, waitTime: Long, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
-        when(T::class) {
-            FollowShortcut::class -> {
-                model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
-                model.save()
-            }
+    fun <T> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
+        when (clazz) {
+            FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            ChannelPointsShortcut::class.java -> model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
         }
+
+        model.save()
     }
 
     fun <T : MetaShortcut> removeShortcut(shortcut: MetaShortcut) {
