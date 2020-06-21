@@ -66,15 +66,27 @@ class MainView : View() {
             form {
                 disableProperty().bind(When(controller.startedProperty).then(false).otherwise(true))
                 fieldset("Test Events", labelPosition = Orientation.VERTICAL) {
-                    val selectedTestEventType = SimpleObjectProperty<EventType>(EventType.follow)
+                    val selectedEventType = SimpleObjectProperty<EventType>(EventType.follow)
                     val valueProperty = SimpleStringProperty("")
-                    combobox(selectedTestEventType, EventType.values().toList())
-                    field("Event Value") {
+                    combobox(selectedEventType, EventType.values().toList())
+                    field("") {
                         textfield().bind(valueProperty)
+                        isDisable = true
+                        selectedEventType.onChange {
+                            text = when (it) {
+                                EventType.follow -> ""
+                                EventType.channelPoints -> "Title"
+                                EventType.bits -> "Bits"
+                                EventType.subscription -> "Months"
+                                EventType.giftSubscription -> "Count"
+                                else -> ""
+                            }
+                            isDisable = it == EventType.follow
+                        }
                     }
                     button("Send Test Event") {
                         action {
-                            controller.sendTestEvent(selectedTestEventType.value, valueProperty.value)
+                            controller.sendTestEvent(selectedEventType.value, valueProperty.value)
                         }
                     }
                 }
