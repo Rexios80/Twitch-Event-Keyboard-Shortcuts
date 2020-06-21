@@ -19,11 +19,12 @@ Turn Twitch Events into keyboard shortcuts to interface with any program on your
 - Java
 
 ### How to use
-1. Open the program
-2. Enter your channel name
-3. Click on the "Get" button next to the "OAuth Token" field
-4. After authenticating, enter the "ACCESS TOKEN" into the "OAuth Token" field
-5. Click the start button
+1. Download the latest release [here](https://github.com/Rexios80/Twitch-Event-Keyboard-Shortcuts/releases)
+2. Open the program
+3. Enter your channel name
+4. Click on the "Get" button next to the "OAuth Token" field
+5. After authenticating, enter the "ACCESS TOKEN" into the "OAuth Token" field
+6. Click the start button
 
 The application is now listening for events on your Twitch channel! Add as many shortcuts as you like, and create issues for any feedback you may have.
 
