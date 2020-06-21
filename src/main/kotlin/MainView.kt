@@ -144,7 +144,9 @@ class MainView : View() {
             fieldset("Add Shortcuts", labelPosition = Orientation.VERTICAL) {
                 hbox(alignment = Pos.BOTTOM_LEFT) {
                     hbox(alignment = Pos.BOTTOM_LEFT) {
-                        combobox(selectedEventType, EventType.values().toList())
+                        combobox(selectedEventType, EventType.values().toList()) {
+                            prefWidth = 140.0
+                        }
                         paddingBottom = 5.0
                     }
                     add(betterSpacer(20.0))
