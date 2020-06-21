@@ -54,37 +54,40 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
     }
 }
 
-abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean) : Serializable {
+abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean, val cooldown: Long?) : Serializable {
     val shortcutOnEventString: String get() = shortcutOnEvent.createShortcutString()
     val shortcutAfterWaitString: String get() = shortcutAfterWait?.createShortcutString() ?: ""
     val waitTimeString: String get() = if (waitTime == null) "" else NumberFormat.getNumberInstance(Locale.US).format(waitTime)
     val alwaysFireString: String get() = if (alwaysFire) "✓" else ""
+    val cooldownString: String get() = if (waitTime == null) "" else NumberFormat.getNumberInstance(Locale.US).format(cooldown)
 
     abstract val valueInt: Int
     abstract val valueString: String?
+
+    var lastFireTime: Long = 0
 }
 
-class FollowShortcut(shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class FollowShortcut(shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
     override val valueInt: Int get() = -1
     override val valueString: String? get() = null
 }
 
-class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
     override val valueInt: Int get() = -1
     override val valueString: String? get() = title
 }
 
-class BitsShortcut(val bits: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class BitsShortcut(val bits: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
     override val valueInt: Int get() = bits
     override val valueString: String? get() = NumberFormat.getNumberInstance(Locale.US).format(bits)
 }
 
-class SubscriptionShortcut(val months: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class SubscriptionShortcut(val months: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
     override val valueInt: Int get() = months
     override val valueString: String? get() = months.toString()
 }
 
-class GiftSubscriptionShortcut(val count: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire) {
+class GiftSubscriptionShortcut(val count: Int, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
     override val valueInt: Int get() = count
     override val valueString: String? get() = count.toString()
 }

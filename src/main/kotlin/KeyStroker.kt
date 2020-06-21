@@ -1,10 +1,18 @@
 import javafx.scene.input.KeyCode
 import java.awt.Robot
+import java.lang.System.currentTimeMillis
 
 class KeyStroker(private val console: EventConsole) {
     private val robot = Robot()
 
     fun strokeKeys(shortcut: MetaShortcut) {
+        val now = currentTimeMillis()
+        if (now - shortcut.lastFireTime <= shortcut.cooldown ?: 0) {
+            console.log("Attempted to fire shortcut within cooldown period")
+            return
+        }
+        shortcut.lastFireTime = now
+
         stroke(shortcut.shortcutOnEvent)
 
         if (shortcut.waitTime != null) {

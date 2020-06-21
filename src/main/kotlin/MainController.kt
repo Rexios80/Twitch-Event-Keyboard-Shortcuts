@@ -99,27 +99,27 @@ class MainController : Controller() {
         }
     }
 
-    fun <T : MetaShortcut> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean) {
+    fun <T : MetaShortcut> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) {
         if (shortcutOnEvent.key == null) return
         if (waitTime != null && shortcutAfterWait.key == null) return
 
         when (clazz) {
-            FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+            FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             ChannelPointsShortcut::class.java -> {
                 if (value.isEmpty()) return
-                model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+                model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             BitsShortcut::class.java -> {
                 val bits = value.toIntOrNull() ?: return
-                model.bitsShortcuts.add(BitsShortcut(bits, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+                model.bitsShortcuts.add(BitsShortcut(bits, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             SubscriptionShortcut::class.java -> {
                 val months = value.toIntOrNull() ?: return
-                model.subscriptionShortcuts.add(SubscriptionShortcut(months, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+                model.subscriptionShortcuts.add(SubscriptionShortcut(months, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             GiftSubscriptionShortcut::class.java -> {
                 val count = value.toIntOrNull() ?: return
-                model.giftSubscriptionShortcuts.add(GiftSubscriptionShortcut(count, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire))
+                model.giftSubscriptionShortcuts.add(GiftSubscriptionShortcut(count, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
         }
 
@@ -197,10 +197,10 @@ class MainController : Controller() {
         }
     }
 
-    fun sendTestEvent(type: TestEventType, value: String) {
+    fun sendTestEvent(type: EventType, value: String) {
         val testEvent = when (type) {
-            TestEventType.follow -> FollowEvent(testChannel, testUser)
-            TestEventType.channelPoints -> {
+            EventType.follow -> FollowEvent(testChannel, testUser)
+            EventType.channelPoints -> {
                 val redemption = ChannelPointsRedemption()
                 redemption.reward = ChannelPointsReward()
                 redemption.reward.title = value
@@ -208,26 +208,26 @@ class MainController : Controller() {
                 redemption.user.displayName = testUser.name
                 ChannelPointsRedemptionEvent(Calendar.getInstance(), redemption)
             }
-            TestEventType.bits -> {
+            EventType.bits -> {
                 val data = ChannelBitsData()
                 data.userName = testUser.name
                 data.bitsUsed = value.toIntOrNull() ?: return
                 ChannelBitsEvent(data)
             }
-            TestEventType.subscription -> {
+            EventType.subscription -> {
                 val data = SubscriptionData()
                 data.userName = testUser.name
                 data.cumulativeMonths = value.toIntOrNull() ?: return
                 ChannelSubscribeEvent(data)
             }
-            TestEventType.giftSubscription -> GiftSubscriptionsEvent(testChannel, testUser, "", value.toIntOrNull() ?: return, -1)
+            EventType.giftSubscription -> GiftSubscriptionsEvent(testChannel, testUser, "", value.toIntOrNull() ?: return, -1)
         }
 
         twitchClient?.eventManager?.publish(testEvent)
     }
 }
 
-enum class TestEventType(val eventName: String) {
+enum class EventType(val eventName: String) {
     follow("Follow"),
     channelPoints("Channel Points"),
     bits("Bits"),

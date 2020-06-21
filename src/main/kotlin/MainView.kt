@@ -65,9 +65,9 @@ class MainView : View() {
             form {
                 disableProperty().bind(When(controller.startedProperty).then(false).otherwise(true))
                 fieldset("Test Events", labelPosition = Orientation.VERTICAL) {
-                    val selectedTestEventType = SimpleObjectProperty<TestEventType>(TestEventType.follow)
+                    val selectedTestEventType = SimpleObjectProperty<EventType>(EventType.follow)
                     val valueProperty = SimpleStringProperty("")
-                    combobox(selectedTestEventType, TestEventType.values().toList())
+                    combobox(selectedTestEventType, EventType.values().toList())
                     field("Event Value") {
                         textfield().bind(valueProperty)
                     }
@@ -116,6 +116,7 @@ class MainView : View() {
         val waitTimeProperty = SimpleStringProperty("")
         val shortcutAfterWaitString = SimpleStringProperty("")
         val alwaysFireProperty = SimpleBooleanProperty(false)
+        val cooldownProperty = SimpleStringProperty("")
 
         val shortcutOnEvent = Shortcut(mutableListOf(), null)
         val shortcutAfterWait = Shortcut(mutableListOf(), null)
@@ -167,17 +168,23 @@ class MainView : View() {
                         }
                     }
                     add(betterSpacer(20.0))
-                    hbox(alignment = Pos.BOTTOM_LEFT) {
-                        paddingBottom = 5
-                        button("Add") {
-                            minWidth = 75.0
-                            action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value.toLongOrNull(), shortcutAfterWait.copy(), alwaysFireProperty.value) }
+                    field("Cooldown (Milliseconds)") {
+                        textfield {
+                            bind(cooldownProperty)
+                            prefWidth = 140.0
                         }
-                        add(betterSpacer(10.0))
-                        button("Delete") {
-                            minWidth = 75.0
-                            action { controller.removeShortcut(selectedShortcut) }
-                        }
+
+                    }
+                    add(betterSpacer(20.0))
+                }
+                field {
+                    button("Add") {
+                        minWidth = 75.0
+                        action { controller.addShortcut(clazz, valueProperty.value, shortcutOnEvent.copy(), waitTimeProperty.value.toLongOrNull(), shortcutAfterWait.copy(), alwaysFireProperty.value, cooldownProperty.value.toLongOrNull()) }
+                    }
+                    button("Delete") {
+                        minWidth = 75.0
+                        action { controller.removeShortcut(selectedShortcut) }
                     }
                 }
                 field {
@@ -208,6 +215,10 @@ class MainView : View() {
                         }
                         readonlyColumn("Shortcut After Wait", MetaShortcut::shortcutAfterWaitString) {
                             prefWidth = 140.0
+                            isSortable = false
+                            isResizable = false
+                        }
+                        readonlyColumn("Cooldown", MetaShortcut::cooldownString) {
                             isSortable = false
                             isResizable = false
                         }
