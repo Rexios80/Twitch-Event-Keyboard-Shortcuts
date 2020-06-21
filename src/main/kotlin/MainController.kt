@@ -106,6 +106,7 @@ class MainController : Controller() {
     fun <T : MetaShortcut> addShortcut(clazz: Class<T>, value: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) {
         if (shortcutOnEvent.key == null) return
         if (waitTime != null && shortcutAfterWait.key == null) return
+        if (waitTime ?: 0 < 0 || cooldown ?: 0 < 0) return
 
         when (clazz) {
             FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
@@ -119,14 +120,17 @@ class MainController : Controller() {
             }
             BitsShortcut::class.java -> {
                 val bits = value.toIntOrNull() ?: return
+                if (bits < 0) return
                 model.bitsShortcuts.add(BitsShortcut(bits, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             SubscriptionShortcut::class.java -> {
                 val months = value.toIntOrNull() ?: return
+                if (months < 0) return
                 model.subscriptionShortcuts.add(SubscriptionShortcut(months, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             GiftSubscriptionShortcut::class.java -> {
                 val count = value.toIntOrNull() ?: return
+                if (count < 0) return
                 model.giftSubscriptionShortcuts.add(GiftSubscriptionShortcut(count, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
         }
