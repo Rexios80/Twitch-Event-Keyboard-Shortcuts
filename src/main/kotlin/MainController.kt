@@ -104,10 +104,10 @@ class MainController : Controller() {
         if (waitTime != null && shortcutAfterWait.key == null) return
 
         when (clazz) {
-            FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
+            FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
             ChannelPointsShortcut::class.java -> {
                 if (value.isEmpty()) return
-                model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
+                model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
             }
             BitsShortcut::class.java -> {
                 val bits = value.toIntOrNull() ?: return

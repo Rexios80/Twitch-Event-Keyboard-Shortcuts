@@ -67,12 +67,12 @@ abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, 
     var lastFireTime: Long = 0
 }
 
-class FollowShortcut(shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
+class FollowShortcut(shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, false, cooldown) {
     override val valueInt: Int get() = -1
     override val valueString: String? get() = null
 }
 
-class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, alwaysFire: Boolean, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown) {
+class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, false, cooldown) {
     override val valueInt: Int get() = -1
     override val valueString: String? get() = title
 }
