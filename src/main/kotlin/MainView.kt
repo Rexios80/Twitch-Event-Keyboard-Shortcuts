@@ -21,6 +21,7 @@ class TeksApp : App(MainView::class)
 
 class MainView : View() {
     private val controller = MainController()
+    private var selectedShortcutProperty = SimpleObjectProperty<MetaShortcut>()
 
     override val root = vbox {
         style {
@@ -81,13 +82,13 @@ class MainView : View() {
         }
         vbox {
             hbox {
-                add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts"))
-                add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title"))
-                add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits"))
+                add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts", selection = selectedShortcutProperty))
+                add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title", selectedShortcutProperty))
+                add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits", selectedShortcutProperty))
             }
             hbox {
-                add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months"))
-                add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count"))
+                add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months", selectedShortcutProperty))
+                add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count", selectedShortcutProperty))
                 form {
                     fieldset("Event Console") {
                         tableview(controller.eventConsole.events) {
@@ -110,7 +111,7 @@ class MainView : View() {
         }
     }
 
-    class ShortcutsView<T : MetaShortcut>(clazz: Class<T>, controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null) : Fragment() {
+    class ShortcutsView<T : MetaShortcut>(clazz: Class<T>, controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null, selection: SimpleObjectProperty<MetaShortcut>) : Fragment() {
         val valueProperty = SimpleStringProperty("")
         val shortcutOnEventString = SimpleStringProperty("")
         val waitTimeProperty = SimpleStringProperty("")
@@ -120,8 +121,6 @@ class MainView : View() {
 
         val shortcutOnEvent = Shortcut(mutableListOf(), null)
         val shortcutAfterWait = Shortcut(mutableListOf(), null)
-
-        var selectedShortcut: MetaShortcut? = null
 
         override val root = form {
             fieldset(title, labelPosition = Orientation.VERTICAL) {
@@ -184,11 +183,12 @@ class MainView : View() {
                     }
                     button("Delete") {
                         minWidth = 75.0
-                        action { controller.removeShortcut(selectedShortcut) }
+                        action { controller.removeShortcut(selection.value) }
                     }
                 }
                 field {
-                    tableview(controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>) {
+                    val items = controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>
+                    tableview(items) {
                         prefHeight = 200.0
                         if (hasValue) {
                             readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
@@ -223,7 +223,14 @@ class MainView : View() {
                             isResizable = false
                         }
                         selectionModel.selectedItemProperty().onChange {
-                            selectedShortcut = it
+                            selection.value = it
+                        }
+                        selection.onChange {
+                            if (!items.contains(it)) {
+                                if (it != null) {
+                                    selectionModel.clearSelection()
+                                }
+                            }
                         }
                     }
                 }
