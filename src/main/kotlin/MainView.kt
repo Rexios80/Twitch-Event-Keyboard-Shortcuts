@@ -235,12 +235,13 @@ class MainView : View() {
                             isResizable = false
                         }
                         selectionModel.selectedItemProperty().onChange {
-                            selection.value = it
+                            if (it != null) {
+                                selection.value = it
+                            }
                         }
                         selection.onChange {
-                            if (!items.contains(it)) {
-                                if (it != null) {
-                                    selectionModel.clearSelection()
+                            if (it != null && !items.contains(it)) {
+                                selectionModel.clearSelection()
                                 }
                             }
                         }
