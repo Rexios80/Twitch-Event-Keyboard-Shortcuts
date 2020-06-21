@@ -25,7 +25,7 @@ Turn Twitch Events into keyboard shortcuts to interface with any program on your
 4. After authenticating, enter the "ACCESS TOKEN" into the "OAuth Token" field
 5. Click the start button
 
-The application is now listening for events on your Twitch channel! Add as many shortcuts as you like, and create Issues for any feedback you may have.
+The application is now listening for events on your Twitch channel! Add as many shortcuts as you like, and create issues for any feedback you may have.
 
 ![Demo Image](https://github.com/Rexios80/Twitch-Event-Keyboard-Shortcuts/blob/master/demo.png)
 
