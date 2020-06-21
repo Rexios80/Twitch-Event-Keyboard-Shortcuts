@@ -49,7 +49,7 @@ class MainView : View() {
                     }
                 }
             }
-            hbox(alignment = Pos.CENTER) {
+            vbox(alignment = Pos.CENTER) {
                 paddingLeft = 50.0
                 button("Start") {
                     disableProperty().bind(When(controller.startedProperty).then(true).otherwise(false))
@@ -88,34 +88,38 @@ class MainView : View() {
                 }
             }
         }
-        vbox {
-            hbox {
+        hbox {
+            vbox {
                 add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts", selection = selectedShortcutProperty))
                 add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title", selectedShortcutProperty))
                 add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits", selectedShortcutProperty))
             }
-            hbox {
+            vbox {
                 add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months", selectedShortcutProperty))
                 add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count", selectedShortcutProperty))
-                form {
-                    fieldset("Event Console") {
-                        tableview(controller.eventConsole.events) {
-                            prefWidth = 480.0
-                            prefHeight = 320.0
-                            smartResize()
-                            readonlyColumn("Time", ConsoleEvent::timeString) {
-                                minWidth = 100.0
-                                isSortable = false
-                                isResizable = false
-                            }
-                            readonlyColumn("Event", ConsoleEvent::message) {
-                                isSortable = false
-                                isResizable = false
-                            }
+            }
+            form {
+                fieldset("Event Console") {
+                    fitToParentHeight()
+                    tableview(controller.eventConsole.events) {
+                        prefWidth = 500.0
+                        fitToParentHeight()
+                        smartResize()
+                        readonlyColumn("Time", ConsoleEvent::timeString) {
+                            minWidth = 100.0
+                            isSortable = false
+                            isResizable = false
+                        }
+                        readonlyColumn("Event", ConsoleEvent::message) {
+                            isSortable = false
+                            isResizable = false
                         }
                     }
                 }
             }
+        }
+        vbox {
+            paddingLeft = 10.0
             button("Delete Selection") {
                 action { controller.removeShortcut(selectedShortcutProperty.value) }
             }
@@ -249,51 +253,49 @@ class MainView : View() {
     class ShortcutsView<T : MetaShortcut>(clazz: Class<T>, controller: MainController, title: String, hasValue: Boolean = false, valueLabel: String? = null, selection: SimpleObjectProperty<MetaShortcut>) : Fragment() {
         override val root = form {
             fieldset(title) {
-                field {
-                    val items = controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>
-                    tableview(items) {
-                        prefHeight = 200.0
-                        if (hasValue) {
-                            readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
-                                prefWidth = 75.0
+                val items = controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>
+                tableview(items) {
+                    prefHeight = 200.0
+                    if (hasValue) {
+                        readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
+                            prefWidth = 75.0
+                            isSortable = false
+                            isResizable = false
+                        }
+                        if (clazz != ChannelPointsShortcut::class.java) {
+                            readonlyColumn("AF", MetaShortcut::alwaysFireString) {
+                                prefWidth = 30.0
                                 isSortable = false
                                 isResizable = false
                             }
-                            if (clazz != ChannelPointsShortcut::class.java) {
-                                readonlyColumn("AF", MetaShortcut::alwaysFireString) {
-                                    prefWidth = 30.0
-                                    isSortable = false
-                                    isResizable = false
-                                }
-                            }
                         }
-                        readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
-                            prefWidth = 140.0
-                            isSortable = false
-                            isResizable = false
+                    }
+                    readonlyColumn("Shortcut On Event", MetaShortcut::shortcutOnEventString) {
+                        prefWidth = 140.0
+                        isSortable = false
+                        isResizable = false
+                    }
+                    readonlyColumn("Wait Time", MetaShortcut::waitTimeString) {
+                        isSortable = false
+                        isResizable = false
+                    }
+                    readonlyColumn("Shortcut After Wait", MetaShortcut::shortcutAfterWaitString) {
+                        prefWidth = 140.0
+                        isSortable = false
+                        isResizable = false
+                    }
+                    readonlyColumn("Cooldown", MetaShortcut::cooldownString) {
+                        isSortable = false
+                        isResizable = false
+                    }
+                    selectionModel.selectedItemProperty().onChange {
+                        if (it != null) {
+                            selection.value = it
                         }
-                        readonlyColumn("Wait Time", MetaShortcut::waitTimeString) {
-                            isSortable = false
-                            isResizable = false
-                        }
-                        readonlyColumn("Shortcut After Wait", MetaShortcut::shortcutAfterWaitString) {
-                            prefWidth = 140.0
-                            isSortable = false
-                            isResizable = false
-                        }
-                        readonlyColumn("Cooldown", MetaShortcut::cooldownString) {
-                            isSortable = false
-                            isResizable = false
-                        }
-                        selectionModel.selectedItemProperty().onChange {
-                            if (it != null) {
-                                selection.value = it
-                            }
-                        }
-                        selection.onChange {
-                            if (it != null && !items.contains(it)) {
-                                selectionModel.clearSelection()
-                            }
+                    }
+                    selection.onChange {
+                        if (it != null && !items.contains(it)) {
+                            selectionModel.clearSelection()
                         }
                     }
                 }
