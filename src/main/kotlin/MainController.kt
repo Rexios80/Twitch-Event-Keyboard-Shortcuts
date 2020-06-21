@@ -121,16 +121,19 @@ class MainController : Controller() {
             BitsShortcut::class.java -> {
                 val bits = value.toIntOrNull() ?: return
                 if (bits < 0) return
+                if (model.bitsShortcuts.filter { it.bits == bits }.count() > 0) return
                 model.bitsShortcuts.add(BitsShortcut(bits, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             SubscriptionShortcut::class.java -> {
                 val months = value.toIntOrNull() ?: return
                 if (months < 0) return
+                if (model.subscriptionShortcuts.filter { it.months == months }.count() > 0) return
                 model.subscriptionShortcuts.add(SubscriptionShortcut(months, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
             GiftSubscriptionShortcut::class.java -> {
                 val count = value.toIntOrNull() ?: return
                 if (count < 0) return
+                if (model.giftSubscriptionShortcuts.filter { it.count == count }.count() > 0) return
                 model.giftSubscriptionShortcuts.add(GiftSubscriptionShortcut(count, shortcutOnEvent, waitTime, shortcutAfterWait, alwaysFire, cooldown))
             }
         }
@@ -153,6 +156,17 @@ class MainController : Controller() {
     fun handleFollow(event: FollowEvent) {
         eventConsole.log("Follow Event - User: " + event.user.name)
         model.followShortcuts.forEach {
+            keyStroker.strokeKeys(it)
+        }
+    }
+
+    @EventSubscriber
+    fun handleMessage(event: ChannelMessageEvent) {
+        if (event.message.length < 2 || event.message[0] != '!') {
+            return // This is not a chat command
+        }
+        eventConsole.log("Chat Command Event - User: " + event.user.name + ", Command: " + event.message)
+        model.chatCommandShortcuts.filter { it.command == event.message }.forEach {
             keyStroker.strokeKeys(it)
         }
     }
@@ -185,17 +199,6 @@ class MainController : Controller() {
     fun handleGiftSubscriptions(event: GiftSubscriptionsEvent) {
         eventConsole.log("Gift Subscription Event - User: " + event.user.name + ", Count: " + event.count)
         fireIntValueShortcuts(event.count, model.giftSubscriptionShortcuts)
-    }
-
-    @EventSubscriber
-    fun handleMessage(event: ChannelMessageEvent) {
-        if (event.message.length < 2 || event.message[0] != '!') {
-            return // This is not a chat command
-        }
-        eventConsole.log("Chat Command Event - User: " + event.user.name + ", Command: " + event.message)
-        model.chatCommandShortcuts.filter { it.command == event.message }.forEach {
-            keyStroker.strokeKeys(it)
-        }
     }
 
     private fun fireIntValueShortcuts(eventValue: Int, shortcuts: List<MetaShortcut>) {
