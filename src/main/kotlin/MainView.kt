@@ -257,6 +257,7 @@ class MainView : View() {
             fieldset(title) {
                 val items = controller.getShortcutsList(clazz) as ObservableList<MetaShortcut>
                 tableview(items) {
+                    prefWidth = 552.0
                     prefHeight = 200.0
                     if (hasValue) {
                         readonlyColumn(valueLabel ?: "", MetaShortcut::valueString) {
@@ -278,6 +279,7 @@ class MainView : View() {
                         isResizable = false
                     }
                     readonlyColumn("Wait Time", MetaShortcut::waitTimeString) {
+                        prefWidth = 75.0
                         isSortable = false
                         isResizable = false
                     }
@@ -287,6 +289,7 @@ class MainView : View() {
                         isResizable = false
                     }
                     readonlyColumn("Cooldown", MetaShortcut::cooldownString) {
+                        prefWidth = 75.0
                         isSortable = false
                         isResizable = false
                     }
