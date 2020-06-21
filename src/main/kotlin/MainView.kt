@@ -91,10 +91,11 @@ class MainView : View() {
         hbox {
             vbox {
                 add(ShortcutsView(FollowShortcut::class.java, controller, "Follow Shortcuts", selection = selectedShortcutProperty))
+                add(ShortcutsView(ChatCommandShortcut::class.java, controller, "Chat Command Shortcuts", true, "Command", selectedShortcutProperty))
                 add(ShortcutsView(ChannelPointsShortcut::class.java, controller, "Channel Points Shortcuts", true, "Title", selectedShortcutProperty))
-                add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits", selectedShortcutProperty))
             }
             vbox {
+                add(ShortcutsView(BitsShortcut::class.java, controller, "Bits Shortcuts", true, "Bits", selectedShortcutProperty))
                 add(ShortcutsView(SubscriptionShortcut::class.java, controller, "Subscription Shortcuts", true, "Months", selectedShortcutProperty))
                 add(ShortcutsView(GiftSubscriptionShortcut::class.java, controller, "Gift Subscription Shortcuts", true, "Count", selectedShortcutProperty))
             }
@@ -127,17 +128,17 @@ class MainView : View() {
     }
 
     class ShortcutCreation(controller: MainController) : Fragment() {
-        val valueProperty = SimpleStringProperty("")
-        val shortcutOnEventString = SimpleStringProperty("")
-        val waitTimeProperty = SimpleStringProperty("")
-        val shortcutAfterWaitString = SimpleStringProperty("")
-        val alwaysFireProperty = SimpleBooleanProperty(false)
-        val cooldownProperty = SimpleStringProperty("")
+        private val valueProperty = SimpleStringProperty("")
+        private val shortcutOnEventString = SimpleStringProperty("")
+        private val waitTimeProperty = SimpleStringProperty("")
+        private val shortcutAfterWaitString = SimpleStringProperty("")
+        private val alwaysFireProperty = SimpleBooleanProperty(false)
+        private val cooldownProperty = SimpleStringProperty("")
 
-        val shortcutOnEvent = Shortcut(mutableListOf(), null)
-        val shortcutAfterWait = Shortcut(mutableListOf(), null)
+        private val shortcutOnEvent = Shortcut(mutableListOf(), null)
+        private val shortcutAfterWait = Shortcut(mutableListOf(), null)
 
-        val selectedEventType = SimpleObjectProperty<EventType>(EventType.follow)
+        private val selectedEventType = SimpleObjectProperty<EventType>(EventType.follow)
 
         override val root = form {
             fieldset("Add Shortcuts", labelPosition = Orientation.VERTICAL) {
@@ -174,7 +175,7 @@ class MainView : View() {
                         paddingBottom = 10
                         bind(alwaysFireProperty)
                         selectedEventType.onChange {
-                            isDisable = it == EventType.follow || it == EventType.channelPoints
+                            isDisable = it == EventType.follow || it == EventType.chatCommand || it == EventType.channelPoints
                         }
                     }
                 }
@@ -210,6 +211,7 @@ class MainView : View() {
                             action {
                                 val shortcutClass = when (selectedEventType.value) {
                                     EventType.follow -> FollowShortcut::class.java
+                                    EventType.chatCommand -> ChatCommandShortcut::class.java
                                     EventType.channelPoints -> ChannelPointsShortcut::class.java
                                     EventType.bits -> BitsShortcut::class.java
                                     EventType.subscription -> SubscriptionShortcut::class.java
@@ -262,7 +264,7 @@ class MainView : View() {
                             isSortable = false
                             isResizable = false
                         }
-                        if (clazz != ChannelPointsShortcut::class.java) {
+                        if (clazz != ChatCommandShortcut::class.java && clazz != ChannelPointsShortcut::class.java) {
                             readonlyColumn("AF", MetaShortcut::alwaysFireString) {
                                 prefWidth = 30.0
                                 isSortable = false

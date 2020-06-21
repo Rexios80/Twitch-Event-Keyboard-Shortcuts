@@ -6,6 +6,7 @@ class Model : Serializable {
     var channelName = ""
     var oauthToken = ""
     var followShortcuts = FXCollections.observableArrayList<FollowShortcut>()
+    var chatCommandShortcuts = FXCollections.observableArrayList<ChatCommandShortcut>()
     var channelPointsShortcuts = FXCollections.observableArrayList<ChannelPointsShortcut>()
     var bitsShortcuts = FXCollections.observableArrayList<BitsShortcut>()
     var subscriptionShortcuts = FXCollections.observableArrayList<SubscriptionShortcut>()
@@ -28,6 +29,8 @@ class Model : Serializable {
 
     fun save() {
         // Auto sort lists
+        followShortcuts.sortBy { it.shortcutOnEventString }
+        chatCommandShortcuts.sortBy { it.command.toLowerCase() }
         channelPointsShortcuts.sortBy { it.title.toLowerCase() }
         bitsShortcuts.sortBy { it.bits }
         subscriptionShortcuts.sortBy { it.months }
@@ -40,6 +43,7 @@ class Model : Serializable {
         oos.writeUTF(channelName)
         oos.writeUTF(oauthToken)
         oos.writeObject(followShortcuts.toList())
+        oos.writeObject(chatCommandShortcuts.toList())
         oos.writeObject(channelPointsShortcuts.toList())
         oos.writeObject(bitsShortcuts.toList())
         oos.writeObject(subscriptionShortcuts.toList())
@@ -53,6 +57,7 @@ class Model : Serializable {
 
         try {
             followShortcuts = FXCollections.observableArrayList(ois.readObject() as List<FollowShortcut>)
+            chatCommandShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChatCommandShortcut>)
             channelPointsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChannelPointsShortcut>)
             bitsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<BitsShortcut>)
             subscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<SubscriptionShortcut>)

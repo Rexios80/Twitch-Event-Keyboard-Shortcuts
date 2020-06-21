@@ -72,6 +72,11 @@ class FollowShortcut(shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWa
     override val valueString: String? get() = null
 }
 
+class ChatCommandShortcut(val command: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, false, cooldown) {
+    override val valueInt: Int get() = -1
+    override val valueString: String? get() = command
+}
+
 class ChannelPointsShortcut(val title: String, shortcutOnEvent: Shortcut, waitTime: Long?, shortcutAfterWait: Shortcut, cooldown: Long?) : MetaShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, false, cooldown) {
     override val valueInt: Int get() = -1
     override val valueString: String? get() = title

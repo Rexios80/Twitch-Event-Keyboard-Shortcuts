@@ -3,8 +3,11 @@ import com.github.philippheuer.events4j.simple.SimpleEventHandler
 import com.github.philippheuer.events4j.simple.domain.EventSubscriber
 import com.github.twitch4j.TwitchClient
 import com.github.twitch4j.TwitchClientBuilder
+import com.github.twitch4j.chat.events.channel.ChannelMessageEvent
 import com.github.twitch4j.chat.events.channel.FollowEvent
 import com.github.twitch4j.chat.events.channel.GiftSubscriptionsEvent
+import com.github.twitch4j.chat.events.channel.IRCMessageEvent
+import com.github.twitch4j.common.enums.CommandPermission
 import com.github.twitch4j.common.events.domain.EventChannel
 import com.github.twitch4j.common.events.domain.EventUser
 import com.github.twitch4j.pubsub.domain.*
@@ -91,6 +94,7 @@ class MainController : Controller() {
     fun <T : MetaShortcut> getShortcutsList(clazz: Class<T>): ObservableList<T> {
         return when (clazz) {
             FollowShortcut::class.java -> model.followShortcuts as ObservableList<T>
+            ChatCommandShortcut::class.java -> model.chatCommandShortcuts as ObservableList<T>
             ChannelPointsShortcut::class.java -> model.channelPointsShortcuts as ObservableList<T>
             BitsShortcut::class.java -> model.bitsShortcuts as ObservableList<T>
             SubscriptionShortcut::class.java -> model.subscriptionShortcuts as ObservableList<T>
@@ -105,6 +109,10 @@ class MainController : Controller() {
 
         when (clazz) {
             FollowShortcut::class.java -> model.followShortcuts.add(FollowShortcut(shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
+            ChatCommandShortcut::class.java -> {
+                if (value.length < 2 || value[0] != '!') return
+                model.chatCommandShortcuts.add(ChatCommandShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
+            }
             ChannelPointsShortcut::class.java -> {
                 if (value.isEmpty()) return
                 model.channelPointsShortcuts.add(ChannelPointsShortcut(value, shortcutOnEvent, waitTime, shortcutAfterWait, cooldown))
@@ -129,6 +137,7 @@ class MainController : Controller() {
     fun removeShortcut(shortcut: MetaShortcut?) {
         when (shortcut) {
             is FollowShortcut -> model.followShortcuts.remove(shortcut)
+            is ChatCommandShortcut -> model.chatCommandShortcuts.remove(shortcut)
             is ChannelPointsShortcut -> model.channelPointsShortcuts.remove(shortcut)
             is BitsShortcut -> model.bitsShortcuts.remove(shortcut)
             is SubscriptionShortcut -> model.subscriptionShortcuts.remove(shortcut)
@@ -174,6 +183,17 @@ class MainController : Controller() {
         fireIntValueShortcuts(event.count, model.giftSubscriptionShortcuts)
     }
 
+    @EventSubscriber
+    fun handleMessage(event: ChannelMessageEvent) {
+        if (event.message.length < 2 || event.message[0] != '!') {
+            return // This is not a chat command
+        }
+        eventConsole.log("Chat Command Event - User: " + event.user.name + ", Command: " + event.message)
+        model.chatCommandShortcuts.filter { it.command == event.message }.forEach {
+            keyStroker.strokeKeys(it)
+        }
+    }
+
     private fun fireIntValueShortcuts(eventValue: Int, shortcuts: List<MetaShortcut>) {
         var previous: MetaShortcut? = null
         val fired = mutableListOf<MetaShortcut>()
@@ -200,6 +220,7 @@ class MainController : Controller() {
     fun sendTestEvent(type: EventType, value: String) {
         val testEvent = when (type) {
             EventType.follow -> FollowEvent(testChannel, testUser)
+            EventType.chatCommand -> ChannelMessageEvent(testChannel, IRCMessageEvent(value), testUser, value, setOf<CommandPermission>())
             EventType.channelPoints -> {
                 val redemption = ChannelPointsRedemption()
                 redemption.reward = ChannelPointsReward()
@@ -229,6 +250,7 @@ class MainController : Controller() {
 
 enum class EventType(val eventName: String) {
     follow("Follow"),
+    chatCommand("Chat Command"),
     channelPoints("Channel Points"),
     bits("Bits"),
     subscription("Subscription"),
@@ -236,6 +258,7 @@ enum class EventType(val eventName: String) {
 
     val fieldText: String get() = when (this) {
         follow -> "-"
+        chatCommand -> "Command (!)"
         channelPoints -> "Title"
         bits -> "Bits"
         subscription -> "Months"
