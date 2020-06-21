@@ -32,7 +32,7 @@ The application is now listening for events on your Twitch channel! Add as many 
 
 ### Useful Information
 - On macOS you will need to go into your Security & Privacy settings both to launch the program, and to give Accessibility permission to perform the keyboard shortcuts.
-- Shortcuts with a number value associated with them (bits, subs, gift subs) will fire if the event value is greater than the shortcut value and less than the next highest event value.
+- Shortcuts with a number value associated with them (bits, subs, gift subs) will fire if the event value is greater than the shortcut value and less than the next highest shortcut value.
 - If a shortcut is marked with "Always Fire" or "AF", the shortcut will always fire if the given value is met or exceeded. This does not affect the firing of other shortcuts.
 
 ### Support Me
