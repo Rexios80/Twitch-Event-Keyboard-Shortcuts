@@ -57,9 +57,9 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
 abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean, val cooldown: Long?) : Serializable {
     val shortcutOnEventString: String get() = shortcutOnEvent.createShortcutString()
     val shortcutAfterWaitString: String get() = shortcutAfterWait?.createShortcutString() ?: ""
-    val waitTimeString: String get() = if (waitTime !is Number) "" else NumberFormat.getNumberInstance(Locale.US).format(waitTime)
+    val waitTimeString: String get() = if (waitTime == null) "" else NumberFormat.getNumberInstance(Locale.US).format(waitTime)
     val alwaysFireString: String get() = if (alwaysFire) "✓" else ""
-    val cooldownString: String get() = if (waitTime !is Number) "" else NumberFormat.getNumberInstance(Locale.US).format(cooldown)
+    val cooldownString: String get() = if (cooldown == null) "" else NumberFormat.getNumberInstance(Locale.US).format(cooldown)
 
     abstract val valueInt: Int
     abstract val valueString: String?
