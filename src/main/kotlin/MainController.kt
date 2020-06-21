@@ -234,6 +234,14 @@ enum class EventType(val eventName: String) {
     subscription("Subscription"),
     giftSubscription("Gift Subscription");
 
+    val fieldText: String get() = when (this) {
+        follow -> "-"
+        channelPoints -> "Title"
+        bits -> "Bits"
+        subscription -> "Months"
+        giftSubscription -> "Count"
+    }
+
     override fun toString(): String {
         return eventName
     }
