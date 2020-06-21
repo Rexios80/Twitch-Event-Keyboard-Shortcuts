@@ -167,6 +167,12 @@ class MainView : View() {
                             isEditable = false
                             addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
                             addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutOnEvent, shortcutOnEventString) }
+                            focusedProperty().onChange {
+                                if (!it && shortcutOnEvent.key == null) {
+                                    shortcutOnEvent.modifiers.clear()
+                                    shortcutOnEventString.value = ""
+                                }
+                            }
                         }
                     }
                     add(betterSpacer(20.0))
@@ -194,6 +200,12 @@ class MainView : View() {
                             isEditable = false
                             addEventHandler(KeyEvent.KEY_PRESSED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
                             addEventHandler(KeyEvent.KEY_RELEASED) { handleKeyPress(it, shortcutAfterWait, shortcutAfterWaitString) }
+                            focusedProperty().onChange {
+                                if (!it && shortcutAfterWait.key == null) {
+                                    shortcutAfterWait.modifiers.clear()
+                                    shortcutAfterWaitString.value = ""
+                                }
+                            }
                         }
                     }
                     add(betterSpacer(20.0))
