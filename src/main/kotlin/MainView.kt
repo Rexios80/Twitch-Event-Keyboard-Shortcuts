@@ -71,9 +71,14 @@ class MainView : View() {
                 fieldset("Test Events", labelPosition = Orientation.VERTICAL) {
                     val selectedEventType = SimpleObjectProperty<EventType>(EventType.follow)
                     val valueProperty = SimpleStringProperty("")
-                    combobox(selectedEventType, EventType.values().toList())
+                    combobox(selectedEventType, EventType.values().toList()) {
+                        prefWidth = 140.0
+                    }
                     field(EventType.follow.fieldText) {
-                        textfield().bind(valueProperty)
+                        textfield {
+                            bind(valueProperty)
+                            prefWidth = 140.0
+                        }
                         isDisable = true
                         selectedEventType.onChange {
                             text = it?.fieldText
@@ -81,6 +86,7 @@ class MainView : View() {
                         }
                     }
                     button("Send Test Event") {
+                        prefWidth = 140.0
                         action {
                             controller.sendTestEvent(selectedEventType.value, valueProperty.value)
                         }
