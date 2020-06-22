@@ -36,6 +36,6 @@ The application is now listening for events on your Twitch channel! Add as many 
 - If a shortcut is marked with "Always Fire" or "AF", the shortcut will always fire if the given value is met or exceeded. This does not affect the firing of other shortcuts.
 
 ### Support Me
-This program is free to use, but if you find it useful even a small donation to show your appreciation means a lot.
+This program is free to use, but if you find it useful even a small donation to show your appreciation means a lot.  
 [StreamElements](https://streamelements.com/rexios85/tip)  
 [Patreon](https://www.patreon.com/rexios)
