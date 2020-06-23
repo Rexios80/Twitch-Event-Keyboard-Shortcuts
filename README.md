@@ -30,6 +30,10 @@ The application is now listening for events on your Twitch channel! Add as many 
 
 ![Demo Image](https://github.com/Rexios80/Twitch-Event-Keyboard-Shortcuts/blob/master/demo.png)
 
+### Possible Uses
+- Automatic OBS scene transitions
+- Trigger AutoHotkey scripts
+
 ### Useful Information
 - On macOS you will need to go into your Security & Privacy settings both to launch the program, and to give Accessibility permission to perform the keyboard shortcuts.
 - Shortcuts with a number value associated with them (bits, subs, gift subs) will fire if the event value is greater than the shortcut value and less than the next highest shortcut value.
