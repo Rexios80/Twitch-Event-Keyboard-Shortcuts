@@ -19,7 +19,7 @@ class Model {
     var giftSubscriptionShortcuts = FXCollections.observableArrayList<GiftSubscriptionShortcut>()
 
     companion object {
-        private const val configFile = "teksConfig"
+        private const val configFile = "teks.config"
         fun load(): Model {
             try {
                 FileReader(configFile).use {
