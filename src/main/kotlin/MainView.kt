@@ -1,8 +1,10 @@
+import javafx.application.Platform
 import javafx.beans.binding.When
 import javafx.beans.property.SimpleBooleanProperty
 import javafx.beans.property.SimpleObjectProperty
 import javafx.beans.property.SimpleStringProperty
 import javafx.collections.ObservableList
+import javafx.event.EventHandler
 import javafx.geometry.Orientation
 import javafx.geometry.Pos
 import javafx.scene.Node
@@ -12,9 +14,11 @@ import javafx.scene.layout.Priority
 import javafx.scene.layout.Region
 import javafx.scene.layout.VBox
 import javafx.scene.text.Font
+import javafx.stage.WindowEvent
 import tornadofx.*
 import java.awt.Desktop
 import java.net.URI
+import kotlin.system.exitProcess
 
 
 class TeksApp : App(MainView::class)
@@ -26,6 +30,11 @@ class MainView : View() {
     override val root = vbox {
         style {
             padding = box(20.px)
+        }
+
+        primaryStage.onCloseRequest = EventHandler<WindowEvent> {
+            Platform.exit()
+            exitProcess(0)
         }
 
         // Unfocus textfield on startup
