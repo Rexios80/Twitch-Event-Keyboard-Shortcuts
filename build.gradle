@@ -15,7 +15,7 @@ dependencies {
         exclude group: "com.github.twitch4j", module: "twitch4j-pubsub"
     }
     implementation "ch.qos.logback:logback-classic:1.2.3"
-    implementation "org.json:json:20200518"
+    implementation 'com.google.code.gson:gson:2.8.6'
 
     implementation fileTree(dir: 'libs', include: ['*.jar'])
 }

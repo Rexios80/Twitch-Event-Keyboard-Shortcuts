@@ -1,10 +1,16 @@
+import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 import javafx.collections.FXCollections
-import java.io.*
+import java.io.FileNotFoundException
+import java.io.FileReader
+import java.io.FileWriter
+import java.lang.reflect.Type
 
 
-class Model : Serializable {
+class Model {
     var channelName = ""
     var oauthToken = ""
+
     var followShortcuts = FXCollections.observableArrayList<FollowShortcut>()
     var chatCommandShortcuts = FXCollections.observableArrayList<ChatCommandShortcut>()
     var channelPointsShortcuts = FXCollections.observableArrayList<ChannelPointsShortcut>()
@@ -16,8 +22,8 @@ class Model : Serializable {
         private const val configFile = "teksConfig"
         fun load(): Model {
             try {
-                ObjectInputStream(FileInputStream(configFile)).use {
-                    return it.readObject() as Model
+                FileReader(configFile).use {
+                    return GsonBuilder().registerTypeAdapter(Model::class.java, ModelDeserializer()).create().fromJson(it, Model::class.java)
                 }
             } catch (e: FileNotFoundException) {
                 print("No config file found")
@@ -36,34 +42,27 @@ class Model : Serializable {
         subscriptionShortcuts.sortBy { it.months }
         giftSubscriptionShortcuts.sortBy { it.count }
 
-        ObjectOutputStream(FileOutputStream(configFile)).use { it.writeObject(this) }
+        FileWriter(configFile).use { Gson().toJson(this, it) }
     }
 
-    private fun writeObject(oos: ObjectOutputStream) {
-        oos.writeUTF(channelName)
-        oos.writeUTF(oauthToken)
-        oos.writeObject(followShortcuts.toList())
-        oos.writeObject(chatCommandShortcuts.toList())
-        oos.writeObject(channelPointsShortcuts.toList())
-        oos.writeObject(bitsShortcuts.toList())
-        oos.writeObject(subscriptionShortcuts.toList())
-        oos.writeObject(giftSubscriptionShortcuts.toList())
-    }
+    class ModelDeserializer : JsonDeserializer<Model> {
+        override fun deserialize(json: JsonElement?, typeOfT: Type?, context: JsonDeserializationContext?): Model {
+            val model = Model()
+            val jsonObject = json?.asJsonObject ?: return model
 
-    @Suppress("UNCHECKED_CAST")
-    private fun readObject(ois: ObjectInputStream) {
-        channelName = ois.readUTF()
-        oauthToken = ois.readUTF()
+            model.channelName = jsonObject.get("channelName").asString
+            model.oauthToken = jsonObject.get("oauthToken").asString
 
-        try {
-            followShortcuts = FXCollections.observableArrayList(ois.readObject() as List<FollowShortcut>)
-            chatCommandShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChatCommandShortcut>)
-            channelPointsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<ChannelPointsShortcut>)
-            bitsShortcuts = FXCollections.observableArrayList(ois.readObject() as List<BitsShortcut>)
-            subscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<SubscriptionShortcut>)
-            giftSubscriptionShortcuts = FXCollections.observableArrayList(ois.readObject() as List<GiftSubscriptionShortcut>)
-        } catch (e: ClassCastException) {
-            print("Unable to deserialize shortcuts")
+            model.followShortcuts = FXCollections.observableArrayList<FollowShortcut>(Gson().fromJson<ArrayList<FollowShortcut>>(jsonObject.get("followShortcuts")))
+            model.chatCommandShortcuts = FXCollections.observableArrayList<ChatCommandShortcut>(Gson().fromJson<ArrayList<ChatCommandShortcut>>(jsonObject.get("chatCommandShortcuts")))
+            model.channelPointsShortcuts = FXCollections.observableArrayList<ChannelPointsShortcut>(Gson().fromJson<ArrayList<ChannelPointsShortcut>>(jsonObject.get("channelPointsShortcuts")))
+            model.bitsShortcuts = FXCollections.observableArrayList<BitsShortcut>(Gson().fromJson<ArrayList<BitsShortcut>>(jsonObject.get("bitsShortcuts")))
+            model.subscriptionShortcuts = FXCollections.observableArrayList<SubscriptionShortcut>(Gson().fromJson<ArrayList<SubscriptionShortcut>>(jsonObject.get("subscriptionShortcuts")))
+            model.giftSubscriptionShortcuts = FXCollections.observableArrayList<GiftSubscriptionShortcut>(Gson().fromJson<ArrayList<GiftSubscriptionShortcut>>(jsonObject.get("giftSubscriptionShortcuts")))
+
+            return model
         }
+
+        private inline fun <reified T> Gson.fromJson(json: JsonElement): T = fromJson<T>(json, object : TypeToken<T>() {}.type)
     }
 }

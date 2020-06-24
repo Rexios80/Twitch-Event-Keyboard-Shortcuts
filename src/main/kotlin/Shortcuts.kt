@@ -1,9 +1,8 @@
 import javafx.scene.input.KeyCode
-import java.io.Serializable
 import java.text.NumberFormat
 import java.util.*
 
-data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Serializable {
+data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) {
     fun createShortcutString(): String {
         val keysPressed = mutableListOf<String>()
         if (modifiers.contains(KeyCode.COMMAND)) {
@@ -54,7 +53,7 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) : Se
     }
 }
 
-abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean, val cooldown: Long?) : Serializable {
+abstract class MetaShortcut(val shortcutOnEvent: Shortcut, val waitTime: Long?, val shortcutAfterWait: Shortcut?, val alwaysFire: Boolean, val cooldown: Long?) {
     val shortcutOnEventString: String get() = shortcutOnEvent.createShortcutString()
     val shortcutAfterWaitString: String get() = shortcutAfterWait?.createShortcutString() ?: ""
     val waitTimeString: String get() = if (waitTime == null) "" else NumberFormat.getNumberInstance(Locale.US).format(waitTime)
