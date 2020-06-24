@@ -1,8 +1,9 @@
+import com.google.gson.Gson
 import javafx.scene.input.KeyCode
 import java.text.NumberFormat
 import java.util.*
 
-data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) {
+class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) {
     fun createShortcutString(): String {
         val keysPressed = mutableListOf<String>()
         if (modifiers.contains(KeyCode.COMMAND)) {
@@ -50,6 +51,10 @@ data class Shortcut(val modifiers: MutableList<KeyCode>, var key: KeyCode?) {
         keysPressed.add(keyName)
 
         return keysPressed.joinToString(" + ")
+    }
+
+    fun copy(): Shortcut {
+        return Gson().fromJson(Gson().toJson(this), Shortcut::class.java)
     }
 }
 
