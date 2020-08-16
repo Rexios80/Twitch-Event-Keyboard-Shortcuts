@@ -37,6 +37,7 @@ class KeyStroker(private val console: EventConsole) {
             robot.keyPress(it)
         }
         robot.keyPress(keyCode)
+        Thread.sleep(250)
         robot.keyRelease(keyCode)
         modifierCodes.forEach {
             robot.keyRelease(it)
