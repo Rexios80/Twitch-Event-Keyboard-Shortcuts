@@ -39,6 +39,14 @@ The application is now listening for events on your Twitch channel! Add as many 
 - Shortcuts with a number value associated with them (bits, subs, gift subs) will fire if the event value is greater than the shortcut value and less than the next highest shortcut value.
 - If a shortcut is marked with "Always Fire" or "AF", the shortcut will always fire if the given value is met or exceeded. This does not affect the firing of other shortcuts.
 
+### Building (future me is thankful)
+#### Prerequisites
+1. JDK 8
+#### Project setup
+1. Set project SDK to JDK 8
+2. Add any libs in the libs folder as module dependencies
+3. Run the shadowJar Gradle task. The output jar is in build/libs.
+
 ### Support Me
 This program is free to use, but if you find it useful even a small donation to show your appreciation means a lot.  
 [StreamElements](https://streamelements.com/rexios85/tip)  
