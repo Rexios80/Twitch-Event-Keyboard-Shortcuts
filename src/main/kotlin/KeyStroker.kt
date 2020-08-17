@@ -13,7 +13,9 @@ class KeyStroker(private val console: EventConsole) {
         }
         shortcut.lastFireTime = now
 
-        stroke(shortcut.shortcutOnEvent)
+        Thread {
+            stroke(shortcut.shortcutOnEvent)
+        }.start()
 
         if (shortcut.waitTime != null) {
             Thread {
