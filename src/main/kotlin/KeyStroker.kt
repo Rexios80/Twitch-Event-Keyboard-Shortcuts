@@ -17,11 +17,9 @@ class KeyStroker(private val console: EventConsole) {
             stroke(shortcut.shortcutOnEvent)
 
             if (shortcut.waitTime != null) {
-                Thread {
-                    console.log("Waiting " + shortcut.waitTimeString + "ms")
-                    Thread.sleep(shortcut.waitTime)
-                    stroke(shortcut.shortcutAfterWait)
-                }.start()
+                console.log("Waiting " + shortcut.waitTimeString + "ms")
+                Thread.sleep(shortcut.waitTime)
+                stroke(shortcut.shortcutAfterWait)
             }
         }.start()
     }
