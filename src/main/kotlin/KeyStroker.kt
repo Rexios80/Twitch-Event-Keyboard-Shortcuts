@@ -24,7 +24,7 @@ class KeyStroker(private val console: EventConsole) {
         }.start()
     }
 
-    private fun stroke(shortcut: Shortcut?) {
+    @Synchronized private fun stroke(shortcut: Shortcut?) {
         shortcut ?: return
 
         val field = KeyCode::class.java.getDeclaredField("code")
@@ -37,7 +37,7 @@ class KeyStroker(private val console: EventConsole) {
             robot.keyPress(it)
         }
         robot.keyPress(keyCode)
-        Thread.sleep(250)
+        Thread.sleep(100)
         robot.keyRelease(keyCode)
         modifierCodes.forEach {
             robot.keyRelease(it)
