@@ -16,7 +16,7 @@ Turn Twitch Events into keyboard shortcuts to interface with any program on your
 - Test events locally to make sure your shortcuts behave as intended
 
 ### Prerequisites
-- Java
+- [Java](https://www.java.com)
 
 ### How to use
 1. Download the latest release [here](https://github.com/Rexios80/Twitch-Event-Keyboard-Shortcuts/releases)
